@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advanced Google Dork Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Fira Code', monospace;
+  font-weight: 600;
+  color: #00ff00;
+  background: black;
+  overflow: hidden;
+}
+
+
+/* MATRIX BACKGROUND */
+#matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#ui {
+  position: relative;
+  z-index: 2;
+}
+
+h1 {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 16px;
+  border-bottom: 1px solid #00ff00;
+  text-shadow: 0 0 12px #00ff00;
+  font-size: 26px;
+}
+
+.container {
+  display: flex;
+  height: calc(100vh - 110px); /* pulls content upward */
+  position: relative;
+  z-index: 2;
+}
+
+.left, .right {
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.left {
+  width: 65%;
+  border-right: 1px solid #00ff00;
+}
+
+.right {
+  width: 35%;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  background: rgba(0,0,0,0.85);
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 10px #00ff00;
+}
+
+button {
+  width: 100%;
+  background: rgba(0,0,0,0.85);
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  padding: 12px;
+  margin: 8px 0;
+  text-align: left;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #00ff00;
+  color: black;
+  box-shadow: 0 0 5px #00ff00, 0 0 15px #00ff00, 0 0 30px #00ff00;
+  transform: scale(1.02);
+}
+
+.tag {
+  float: right;
+}
+
+.low { color: #66ff66; }
+.medium { color: #ffff66; }
+.high { color: #ff6666; }
+
+.small {
+  font-size: 15px;
+  color: #99ff99;
+  line-height: 1.6;
+  font-weight: 600;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+<div id="ui">
+
+<h1>☠ ADVANCED GOOGLE DORK DASHBOARD ☠</h1>
+
+<div class="container">
+
+  <div class="left">
+    <h3>🌐 Sensitive & High-Signal Dorks</h3>
+    <div id="dorkList"></div>
+  </div>
+
+  <div class="right">
+    <h3>🎯 Target Filter (Optional)</h3>
+    <input id="target" placeholder="example.com (optional)">
+    <p class="small">
+      Leave empty → global search<br>
+      Filled → auto applied to all dorks
+    </p>
+  </div>
+
+</div>
+
+<script>
+/* MATRIX EFFECT */
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*';
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#00ff00';
+  ctx.font = fontSize + 'px monospace';
+
+  drops.forEach((y, i) => {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(text, i * fontSize, y * fontSize);
+
+    if (y * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  });
+}
+
+setInterval(drawMatrix, 50);
+
+/* DORK DATA */
+const dorks = [
+  { q: 'site:.s3.amazonaws.com ("confidential" OR "internal use only" OR "not for public release")', lvl: 'high' },
+  { q: 'site:.s3.amazonaws.com "cengage"', lvl: 'medium' },
+  { q: 'site:.s3.amazonaws.com ext:pdf ("private" OR "restricted")', lvl: 'medium' },
+
+  { q: 'site:blob.core.windows.net ("confidential" OR "private")', lvl: 'medium' },
+  { q: 'site:storage.googleapis.com ("internal" OR "restricted")', lvl: 'medium' },
+
+  { q: 'ext:env ("AWS_SECRET_ACCESS_KEY" OR "DB_PASSWORD")', lvl: 'high' },
+  { q: 'ext:json ("accessKeyId" AND "secretAccessKey")', lvl: 'high' },
+  { q: 'ext:yaml ("private_key" OR "client_secret")', lvl: 'high' },
+
+  { q: 'intitle:"index of" ("backup" OR "dump" OR "db")', lvl: 'medium' },
+  { q: 'ext:sql ("dump" OR "backup")', lvl: 'medium' },
+  { q: 'ext:zip ("backup" OR "internal")', lvl: 'low' },
+
+  { q: '"strictly private" filetype:pdf', lvl: 'low' },
+  { q: '"internal use only" filetype:docx', lvl: 'low' },
+  { q: '"do not distribute" filetype:pptx', lvl: 'low' }
+];
+
+function render() {
+  const list = document.getElementById('dorkList');
+  list.innerHTML = '';
+
+  dorks.forEach(d => {
+    const btn = document.createElement('button');
+    btn.innerHTML = d.q + `<span class="tag ${d.lvl}">[${d.lvl.toUpperCase()}]</span>`;
+    btn.onclick = () => search(d.q);
+    btn.oncontextmenu = e => {
+      e.preventDefault();
+      navigator.clipboard.writeText(d.q);
+    };
+    list.appendChild(btn);
+  });
+}
+
+function search(dork) {
+  const t = document.getElementById('target').value.trim();
+  let finalDork = t ? dork + ' "' + t + '"' : dork;
+  window.open('https://www.google.com/search?q=' + encodeURIComponent(finalDork), '_blank');
+}
+
+render();
+</script>
+
+</div>
+</body>
+</html>
