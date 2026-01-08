@@ -242,18 +242,31 @@ const dorks = [
 function render() {
   const list = document.getElementById("dorkList");
   list.innerHTML = "";
-  ["HIGH","MEDIUM","LOW"].forEach(sev=>{
-    const h=document.createElement("h3");
-    h.textContent = sev==="HIGH"?"🔴 HIGH Severity":sev==="MEDIUM"?"🟡 MEDIUM Severity":"🟢 LOW Severity";
+
+  ["HIGH","MEDIUM","LOW"].forEach(sev => {
+    const h = document.createElement("h3");
+    h.textContent =
+      sev === "HIGH" ? "🔴 HIGH Severity" :
+      sev === "MEDIUM" ? "🟡 MEDIUM Severity" :
+      "🟢 LOW Severity";
+
     list.appendChild(h);
 
-    dorks.filter(d=>d.s===sev).forEach(d=>{
-      const b=document.createElement("button");
-      b.innerHTML = `[${d.p}] ${d.q} <span class="tag ${sev.toLowerCase()}">[${sev}]</span>`;
-      b.onclick=()=>search(d.q);
-      b.oncontextmenu=e=>{e.preventDefault();navigator.clipboard.writeText(d.q);}
-      list.appendChild(b);
-    });
+    dorks
+      .filter(d => d.severity === sev)   // ✅ FIXED
+      .forEach(d => {
+        const b = document.createElement("button");
+        b.innerHTML =
+          `[${d.provider}] ${d.q} <span class="tag ${sev.toLowerCase()}">[${sev}]</span>`; // ✅ FIXED
+
+        b.onclick = () => search(d.q);
+        b.oncontextmenu = e => {
+          e.preventDefault();
+          navigator.clipboard.writeText(d.q);
+        };
+
+        list.appendChild(b);
+      });
   });
 }
 
