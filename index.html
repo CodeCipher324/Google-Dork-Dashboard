@@ -137,6 +137,44 @@ footer {
   color: #00ffaa;
   text-shadow: 0 0 6px rgba(0,255,170,0.8);
 }
+/* 📱 Mobile Responsive */
+@media (max-width: 768px) {
+
+  .container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .left, .right {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(0,255,0,0.4);
+    max-height: none;
+  }
+
+  h1 {
+    font-size: 20px;
+    padding: 10px;
+  }
+
+  input {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  footer {
+    font-size: 12px;
+    padding: 8px 12px;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+}
 </style></head><body><canvas id="matrix"></canvas>
 
 <div id="ui"><h1>☠ ADVANCED GOOGLE DORK DASHBOARD ☠</h1><div class="container">  <div class="left">
