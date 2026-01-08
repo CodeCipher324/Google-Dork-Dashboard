@@ -174,22 +174,69 @@ setInterval(drawMatrix,50);
 
 /* DORKS — SORTED BY SEVERITY */
 const dorks = [
-  // 🔴 HIGH
-  {q:'site:s3.amazonaws.com ("confidential" OR "internal use only") filetype:pdf',s:'HIGH',p:'AWS'},
-  {q:'site:s3.amazonaws.com ("backup" OR "dump") filetype:sql',s:'HIGH',p:'AWS'},
-  {q:'site:blob.core.windows.net ("audit" OR "compliance") filetype:pdf',s:'HIGH',p:'AZURE'},
-  {q:'site:blob.core.windows.net ("backup" OR "export") filetype:bak',s:'HIGH',p:'AZURE'},
-  {q:'site:storage.googleapis.com ("backup" OR "export") filetype:csv',s:'HIGH',p:'GCP'},
-  {q:'site:storage.googleapis.com ("firebase" OR "firestore") filetype:json',s:'HIGH',p:'GCP'},
 
-  // 🟡 MEDIUM
-  {q:'site:s3.amazonaws.com ("internal report") filetype:pdf',s:'MEDIUM',p:'AWS'},
-  {q:'site:blob.core.windows.net ("report" OR "analysis") filetype:xlsx',s:'MEDIUM',p:'AZURE'},
-  {q:'site:storage.googleapis.com ("analytics" OR "report") filetype:json',s:'MEDIUM',p:'GCP'},
+/* =========================
+   🔴 HIGH SEVERITY — TIER 3
+   ========================= */
 
-  // 🟢 LOW
-  {q:'intitle:"index of" backup',s:'LOW',p:'GLOBAL'},
-  {q:'"internal use only" filetype:pdf',s:'LOW',p:'GLOBAL'}
+  // AWS S3 — Backups / Dumps / Logs
+  { q: 'site:s3.amazonaws.com ("backup" OR "db_backup" OR "database dump") filetype:sql', severity: 'HIGH', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com ("backup" OR "dump") filetype:zip', severity: 'HIGH', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com filetype:env', severity: 'HIGH', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com filetype:config ("password" OR "secret")', severity: 'HIGH', provider: 'AWS' },
+
+  // Azure Blob — Backups / Exports / Configs
+  { q: 'site:blob.core.windows.net ("backup" OR "dbbackup") filetype:bak', severity: 'HIGH', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("export" OR "dump") filetype:csv', severity: 'HIGH', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("appsettings" OR "configuration") filetype:json', severity: 'HIGH', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("connection string") filetype:json', severity: 'HIGH', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AZURE' },
+
+  // Azure DevOps — Artifacts / Pipelines
+  { q: 'site:blob.core.windows.net ("pipeline" OR "build") filetype:log', severity: 'HIGH', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("artifact" OR "release") filetype:zip', severity: 'HIGH', provider: 'AZURE' },
+
+  // GCP — Backups / Exports / Firebase
+  { q: 'site:storage.googleapis.com ("backup" OR "dump") filetype:sql', severity: 'HIGH', provider: 'GCP' },
+  { q: 'site:storage.googleapis.com ("export" OR "snapshot") filetype:csv', severity: 'HIGH', provider: 'GCP' },
+  { q: 'site:storage.googleapis.com ("firebase" OR "firestore") filetype:json', severity: 'HIGH', provider: 'GCP' },
+  { q: 'site:storage.googleapis.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'GCP' },
+  { q: 'site:storage.googleapis.com ("build" OR "artifact") filetype:zip', severity: 'HIGH', provider: 'GCP' },
+
+/* =========================
+   🟡 MEDIUM SEVERITY — TIER 2
+   ========================= */
+
+  // AWS S3 — Internal / Business Documents
+  { q: 'site:s3.amazonaws.com ("confidential" OR "internal use only" OR "restricted") filetype:pdf', severity: 'MEDIUM', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com ("confidential" OR "internal") filetype:docx', severity: 'MEDIUM', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com ("internal report" OR "business report") filetype:pdf', severity: 'MEDIUM', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com ("export" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com "cengage" ("internal" OR "restricted")', severity: 'MEDIUM', provider: 'AWS' },
+
+  // Azure Blob — Docs / Reports / Compliance
+  { q: 'site:blob.core.windows.net ("internal" OR "confidential") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("private" OR "restricted") filetype:xlsx', severity: 'MEDIUM', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("report" OR "analysis") filetype:csv', severity: 'MEDIUM', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("audit" OR "compliance") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("internal policy") filetype:docx', severity: 'MEDIUM', provider: 'AZURE' },
+
+  // GCP — Analytics / Reports / Exports
+  { q: 'site:storage.googleapis.com ("analytics" OR "report") filetype:json', severity: 'MEDIUM', provider: 'GCP' },
+  { q: 'site:storage.googleapis.com ("bigquery" OR "bq") ("export" OR "result") filetype:csv', severity: 'MEDIUM', provider: 'GCP' },
+  { q: 'site:storage.googleapis.com ("dashboard" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'GCP' },
+
+/* =========================
+   🟢 LOW SEVERITY — RECON / SUPPORTING
+   ========================= */
+
+  // Global / Recon
+  { q: 'intitle:"index of" backup', severity: 'LOW', provider: 'GLOBAL' },
+  { q: 'intitle:"index of" confidential', severity: 'LOW', provider: 'GLOBAL' },
+  { q: '"internal use only" filetype:pdf', severity: 'LOW', provider: 'GLOBAL' },
+  { q: '"do not distribute" filetype:pptx', severity: 'LOW', provider: 'GLOBAL' }
+
 ];
 
 function render() {
