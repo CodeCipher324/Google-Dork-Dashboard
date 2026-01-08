@@ -3,7 +3,9 @@
 <meta charset="UTF-8">
 <title>Advanced Google Dork Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet"><style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -14,7 +16,7 @@ body {
   overflow: hidden;
 }
 
-/* MATRIX */
+/* MATRIX BACKGROUND */
 #matrix {
   position: fixed;
   top: 0;
@@ -25,14 +27,11 @@ body {
   pointer-events: none;
 }
 
-#ui {
+h1 {
   position: relative;
   z-index: 2;
-}
-
-h1 {
   text-align: center;
-  padding: 10px;
+  padding: 16px;
   border-bottom: 1px solid #00ff00;
   text-shadow: 0 0 12px #00ff00;
   font-size: 26px;
@@ -40,7 +39,9 @@ h1 {
 
 .container {
   display: flex;
-  height: calc(100vh - 110px);
+  height: calc(100vh - 70px);
+  position: relative;
+  z-index: 2;
 }
 
 .left, .right {
@@ -63,7 +64,14 @@ input {
   background: rgba(0,0,0,0.85);
   color: #00ff00;
   border: 1px solid #00ff00;
+  font-family: inherit;
   font-size: 16px;
+  font-weight: 600;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 10px #00ff00;
 }
 
 button {
@@ -74,32 +82,56 @@ button {
   border-left: 3px solid #00ff00;
   padding: 12px;
   margin: 8px 0;
+  text-align: left;
   cursor: pointer;
+  font-size: 15px;
   font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
 }
 
 button:hover {
   background: #00ff00;
   color: black;
-  box-shadow: 0 0 15px #00ff00;
+  box-shadow: 0 0 5px #00ff00, 0 0 15px #00ff00, 0 0 30px #00ff00;
+  transform: scale(1.02);
 }
 
+.tag {
+  float: right;
+}
+
+.low { color: #66ff66; }
+.medium { color: #ffff66; }
+.high { color: #ff6666; }
+
 .small {
-  font-size: 14px;
+  font-size: 15px;
   color: #99ff99;
+  line-height: 1.6;
+  font-weight: 600;
 }
 
 footer {
+  position: relative;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
-  padding: 10px 16px;
+  align-items: center;
+  padding: 12px 18px;
   border-top: 1px solid rgba(0,255,0,0.4);
   background: rgba(0,0,0,0.6);
   font-size: 13px;
+  color: #66ff66;
+}
+
+.footer-center {
+  opacity: 0.85;
 }
 
 .accent {
   color: #00ffaa;
+  text-shadow: 0 0 6px rgba(0,255,170,0.8);
 }
 </style></head><body><canvas id="matrix"></canvas>
 
