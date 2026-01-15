@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dork Matrix | CodeCipher</title>
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
 
 <style>
 * { box-sizing: border-box; }
@@ -28,12 +29,13 @@ body {
 #ui {
   position: relative;
   z-index: 5;
-  margin-top: -10px;
+  margin-top: -8px; /* slight upward lift */
 }
 
 h1 {
   text-align: center;
   padding: 12px;
+  margin: 0;
   border-bottom: 1px solid #00ff00;
   text-shadow: 0 0 12px #00ff00;
 }
@@ -57,17 +59,33 @@ h1 {
   width: 35%;
 }
 
+.panel {
+  border: 1px solid rgba(0,255,0,0.35);
+  background: rgba(0,0,0,0.55);
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0,255,0,0.08);
+}
+
 input {
   width: 100%;
   padding: 12px;
   background: rgba(0,0,0,0.85);
   color: #00ff00;
   border: 1px solid #00ff00;
+  border-radius: 10px;
 }
 
 input:focus {
   outline: none;
   box-shadow: 0 0 10px #00ff00;
+}
+
+.small {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #99ff99;
 }
 
 button {
@@ -81,12 +99,15 @@ button {
   cursor: pointer;
   font-weight: 700;
   text-align: left;
+  border-radius: 10px;
+  transition: all 0.2s ease;
 }
 
 button:hover {
   background: #00ff00;
   color: black;
   box-shadow: 0 0 15px #00ff00;
+  transform: scale(1.01);
 }
 
 .tag { float: right; }
@@ -95,6 +116,16 @@ button:hover {
 .medium { color: #ffff66; }
 .low { color: #66ff66; }
 
+.sevHeader {
+  margin: 18px 0 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0,255,0,0.35);
+  border-left: 3px solid rgba(0,255,0,0.9);
+  border-radius: 12px;
+  background: rgba(0,0,0,0.6);
+  text-shadow: 0 0 10px rgba(0,255,0,0.3);
+}
+
 footer {
   position: fixed;
   bottom: 0; left: 0;
@@ -102,13 +133,15 @@ footer {
   display: flex;
   justify-content: space-between;
   padding: 8px 14px;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.82);
   border-top: 1px solid rgba(0,255,0,0.4);
   font-size: 12px;
+  z-index: 6;
 }
 
 .accent {
   color: #00ffaa;
+  text-shadow: 0 0 6px rgba(0,255,170,0.5);
 }
 
 /* MOBILE */
@@ -121,164 +154,258 @@ footer {
 </head>
 
 <body>
-
 <canvas id="matrix"></canvas>
 
 <div id="ui">
-<h1>☠ DORK MATRIX ☠</h1>
+  <h1>☠ DORK MATRIX ☠</h1>
 
-<div class="container">
+  <div class="container">
+    <div class="left">
+      <div class="panel">
+        <div id="dorkList"></div>
+      </div>
+    </div>
 
-<div class="left">
-  <div id="dorkList"></div>
-</div>
+    <div class="right">
+      <div class="panel">
+        <h3 style="margin-top:0;">🎯 Target Filter</h3>
+        <input id="target" placeholder="example.com (optional)" />
+        <div class="small">
+          ✅ If you enter a domain → tool adds <span class="accent">Target Dorks</span> automatically.<br/>
+          ✅ Cloud dorks still work (AWS/Azure/GCP).<br/>
+          💡 Right-click a dork button to copy.
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="right">
-  <h3>🎯 Target Filter</h3>
-  <input id="target" placeholder="example.com (optional)">
-</div>
-
-</div>
-
-<footer>
-  <div>Made with ❤️ by <span class="accent">CodeCipher</span></div>
-  <div>Authorized & ethical testing only</div>
-  <div>Happy Hunting ☠️</div>
-</footer>
+  <footer>
+    <div>Made with ❤️ by <span class="accent">CodeCipher</span></div>
+    <div id="footerCenter">Authorized & ethical testing only</div>
+    <div>Happy Hunting ☠️</div>
+  </footer>
 </div>
 
 <script>
-/* MATRIX EFFECT */
+/* =========================
+   MATRIX EFFECT
+   ========================= */
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*";
 const fontSize = 14;
-const cols = canvas.width / fontSize;
-const drops = Array(Math.floor(cols)).fill(1);
+let drops = [];
+
+function initDrops() {
+  const cols = Math.floor(canvas.width / fontSize);
+  drops = Array(cols).fill(1);
+}
+initDrops();
+window.addEventListener("resize", initDrops);
 
 function drawMatrix() {
   ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
+
   ctx.fillStyle = "#00ff00";
   ctx.font = fontSize + "px monospace";
+
   drops.forEach((y,i)=>{
     const text = chars[Math.floor(Math.random()*chars.length)];
     ctx.fillText(text,i*fontSize,y*fontSize);
-    if(y*fontSize>canvas.height && Math.random()>0.975) drops[i]=0;
+
+    if(y*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
     drops[i]++;
   });
 }
-setInterval(drawMatrix,50);
+setInterval(drawMatrix, 50);
 
-/* DORKS — SORTED BY SEVERITY */
-const dorks = [
 
 /* =========================
-   🔴 HIGH SEVERITY — TIER 3
+   CLOUD DORKS (AWS/AZURE/GCP)
+   Tier 2 + Tier 3
    ========================= */
+const cloudDorks = [
 
-  // AWS S3 — Backups / Dumps / Logs
+  /* 🔴 HIGH — Tier 3 */
+  // AWS
   { q: 'site:s3.amazonaws.com ("backup" OR "db_backup" OR "database dump") filetype:sql', severity: 'HIGH', provider: 'AWS' },
   { q: 'site:s3.amazonaws.com ("backup" OR "dump") filetype:zip', severity: 'HIGH', provider: 'AWS' },
   { q: 'site:s3.amazonaws.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AWS' },
   { q: 'site:s3.amazonaws.com filetype:env', severity: 'HIGH', provider: 'AWS' },
   { q: 'site:s3.amazonaws.com filetype:config ("password" OR "secret")', severity: 'HIGH', provider: 'AWS' },
 
-  // Azure Blob — Backups / Exports / Configs
+  // AZURE
   { q: 'site:blob.core.windows.net ("backup" OR "dbbackup") filetype:bak', severity: 'HIGH', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net ("export" OR "dump") filetype:csv', severity: 'HIGH', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net ("appsettings" OR "configuration") filetype:json', severity: 'HIGH', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net ("connection string") filetype:json', severity: 'HIGH', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AZURE' },
-
-  // Azure DevOps — Artifacts / Pipelines
   { q: 'site:blob.core.windows.net ("pipeline" OR "build") filetype:log', severity: 'HIGH', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net ("artifact" OR "release") filetype:zip', severity: 'HIGH', provider: 'AZURE' },
 
-  // GCP — Backups / Exports / Firebase
+  // GCP
   { q: 'site:storage.googleapis.com ("backup" OR "dump") filetype:sql', severity: 'HIGH', provider: 'GCP' },
   { q: 'site:storage.googleapis.com ("export" OR "snapshot") filetype:csv', severity: 'HIGH', provider: 'GCP' },
   { q: 'site:storage.googleapis.com ("firebase" OR "firestore") filetype:json', severity: 'HIGH', provider: 'GCP' },
   { q: 'site:storage.googleapis.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'GCP' },
   { q: 'site:storage.googleapis.com ("build" OR "artifact") filetype:zip', severity: 'HIGH', provider: 'GCP' },
 
-/* =========================
-   🟡 MEDIUM SEVERITY — TIER 2
-   ========================= */
-
-  // AWS S3 — Internal / Business Documents
+  /* 🟡 MEDIUM — Tier 2 */
+  // AWS docs
   { q: 'site:s3.amazonaws.com ("confidential" OR "internal use only" OR "restricted") filetype:pdf', severity: 'MEDIUM', provider: 'AWS' },
   { q: 'site:s3.amazonaws.com ("confidential" OR "internal") filetype:docx', severity: 'MEDIUM', provider: 'AWS' },
   { q: 'site:s3.amazonaws.com ("internal report" OR "business report") filetype:pdf', severity: 'MEDIUM', provider: 'AWS' },
   { q: 'site:s3.amazonaws.com ("export" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'AWS' },
   { q: 'site:s3.amazonaws.com "cengage" ("internal" OR "restricted")', severity: 'MEDIUM', provider: 'AWS' },
 
-  // Azure Blob — Docs / Reports / Compliance
+  // AZURE docs
   { q: 'site:blob.core.windows.net ("internal" OR "confidential") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net ("private" OR "restricted") filetype:xlsx', severity: 'MEDIUM', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net ("report" OR "analysis") filetype:csv', severity: 'MEDIUM', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net ("audit" OR "compliance") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE' },
   { q: 'site:blob.core.windows.net ("internal policy") filetype:docx', severity: 'MEDIUM', provider: 'AZURE' },
 
-  // GCP — Analytics / Reports / Exports
+  // GCP reports
   { q: 'site:storage.googleapis.com ("analytics" OR "report") filetype:json', severity: 'MEDIUM', provider: 'GCP' },
   { q: 'site:storage.googleapis.com ("bigquery" OR "bq") ("export" OR "result") filetype:csv', severity: 'MEDIUM', provider: 'GCP' },
   { q: 'site:storage.googleapis.com ("dashboard" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'GCP' },
 
-/* =========================
-   🟢 LOW SEVERITY — RECON / SUPPORTING
-   ========================= */
-
-  // Global / Recon
+  /* 🟢 LOW — Recon support */
   { q: 'intitle:"index of" backup', severity: 'LOW', provider: 'GLOBAL' },
   { q: 'intitle:"index of" confidential', severity: 'LOW', provider: 'GLOBAL' },
   { q: '"internal use only" filetype:pdf', severity: 'LOW', provider: 'GLOBAL' },
-  { q: '"do not distribute" filetype:pptx', severity: 'LOW', provider: 'GLOBAL' }
-
+  { q: '"do not distribute" filetype:pptx', severity: 'LOW', provider: 'GLOBAL' },
 ];
+
+
+/* =========================
+   TARGET DORKS (Auto-added if target filled)
+   No site: here -> we inject site:target automatically
+   ========================= */
+const targetDorks = [
+  // 🔴 HIGH: Confidential docs & sensitive exports
+  { q: '("confidential" OR "internal use only" OR "restricted" OR "not for distribution") (filetype:pdf OR filetype:docx OR filetype:pptx)', severity: 'HIGH', provider: 'TARGET' },
+  { q: '("do not share" OR "not for public" OR "strictly private" OR "private") (filetype:xlsx OR filetype:csv)', severity: 'HIGH', provider: 'TARGET' },
+
+  // 🔴 HIGH: Backups / dumps
+  { q: '("backup" OR "dump" OR "db_backup" OR "database dump") (filetype:sql OR filetype:bak OR filetype:zip)', severity: 'HIGH', provider: 'TARGET' },
+
+  // 🔴 HIGH: Config-like leaks (still OSINT)
+  { q: '(filetype:env OR filetype:yml OR filetype:yaml OR filetype:json) ("config" OR "settings" OR "appsettings")', severity: 'HIGH', provider: 'TARGET' },
+
+  // 🟡 MEDIUM: Reports / exports
+  { q: '("export" OR "report" OR "dashboard") (filetype:xlsx OR filetype:csv OR filetype:pdf)', severity: 'MEDIUM', provider: 'TARGET' },
+
+  // 🟡 MEDIUM: Logs / traces
+  { q: '(filetype:log OR filetype:txt) ("error" OR "exception" OR "stack trace")', severity: 'MEDIUM', provider: 'TARGET' },
+
+  // 🟡 MEDIUM: Directory listing
+  { q: 'intitle:"index of" ("backup" OR "dump" OR "private" OR "internal")', severity: 'MEDIUM', provider: 'TARGET' },
+];
+
+
+/* =========================
+   SEARCH LOGIC
+   - If target is filled:
+     - target dorks get "site:target" auto injected
+     - cloud dorks remain same, but target keyword is appended for narrowing
+   ========================= */
+function search(dork, mode) {
+  const t = document.getElementById('target').value.trim();
+  const hasSite = /site:\S+/i.test(dork);
+
+  let finalDork = dork;
+
+  if (t) {
+    if (mode === 'TARGET') {
+      // enforce site:target
+      finalDork = `site:${t} ${dork}`;
+    } else {
+      // keep cloud dorks intact, just narrow by keyword
+      finalDork = hasSite ? `${dork} "${t}"` : `site:${t} ${dork}`;
+    }
+  }
+
+  window.open('https://www.google.com/search?q=' + encodeURIComponent(finalDork), '_blank');
+}
+
+
+/* =========================
+   RENDER — GROUP BY SEVERITY (Option 2)
+   ========================= */
+function getActiveDorks() {
+  const t = document.getElementById('target').value.trim();
+  const merged = [...cloudDorks];
+
+  if (t) {
+    merged.push(...targetDorks);
+    document.getElementById("footerCenter").innerHTML =
+      `Target mode: <span class="accent">ON</span> • Authorized & ethical testing only`;
+  } else {
+    document.getElementById("footerCenter").innerText =
+      "Authorized & ethical testing only";
+  }
+
+  return merged;
+}
 
 function render() {
   const list = document.getElementById("dorkList");
   list.innerHTML = "";
 
-  ["HIGH","MEDIUM","LOW"].forEach(sev => {
-    const h = document.createElement("h3");
-    h.textContent =
-      sev === "HIGH" ? "🔴 HIGH Severity" :
-      sev === "MEDIUM" ? "🟡 MEDIUM Severity" :
-      "🟢 LOW Severity";
+  const data = getActiveDorks();
+
+  const order = ["HIGH","MEDIUM","LOW"];
+  order.forEach(sev => {
+    const h = document.createElement("div");
+    h.className = "sevHeader";
+    h.innerHTML =
+      sev === "HIGH" ? "🔴 <b>HIGH Severity</b> (Tier-3 / High-impact exposure)" :
+      sev === "MEDIUM" ? "🟡 <b>MEDIUM Severity</b> (Tier-2 / Sensitive content)" :
+      "🟢 <b>LOW Severity</b> (Recon / Supporting)";
 
     list.appendChild(h);
 
-    dorks
-      .filter(d => d.severity === sev)   // ✅ FIXED
-      .forEach(d => {
-        const b = document.createElement("button");
-        b.innerHTML =
-          `[${d.provider}] ${d.q} <span class="tag ${sev.toLowerCase()}">[${sev}]</span>`; // ✅ FIXED
+    const items = data.filter(d => d.severity === sev);
+    if (items.length === 0) return;
 
-        b.onclick = () => search(d.q);
-        b.oncontextmenu = e => {
-          e.preventDefault();
-          navigator.clipboard.writeText(d.q);
-        };
+    items.forEach(d => {
+      const b = document.createElement("button");
 
-        list.appendChild(b);
-      });
+      const sevClass = sev.toLowerCase();
+      b.innerHTML =
+        `[${d.provider}] ${d.q} <span class="tag ${sevClass}">[${sev}]</span>`;
+
+      // determine mode (TARGET dorks should be forced into site:target)
+      const mode = (d.provider === "TARGET") ? "TARGET" : "CLOUD";
+
+      b.onclick = () => search(d.q, mode);
+      b.oncontextmenu = e => {
+        e.preventDefault();
+        navigator.clipboard.writeText(d.q);
+      };
+
+      list.appendChild(b);
+    });
   });
 }
 
-function search(q){
-  const t=document.getElementById("target").value.trim();
-  const d=t?q+` "${t}"`:q;
-  window.open("https://www.google.com/search?q="+encodeURIComponent(d),"_blank");
-}
+document.getElementById("target").addEventListener("input", () => {
+  // light debounce feel
+  clearTimeout(window.__rT);
+  window.__rT = setTimeout(render, 150);
+});
 
 render();
 </script>
-
 </body>
 </html>
