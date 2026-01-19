@@ -3,261 +3,315 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dork Matrix v4.1 | CodeCipher</title>
+<title>Dork Matrix v4.2 | CodeCipher</title>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet" />
 
 <style>
 * { box-sizing: border-box; }
 
-body {
-  margin: 0;
-  font-family: 'Fira Code', monospace;
-  background: black;
-  color: #00ff00;
-  overflow-x: hidden;
+body{
+  margin:0;
+  font-family:'Fira Code', monospace;
+  background:black;
+  color:#00ff00;
+  overflow-x:hidden;
 }
 
 /* MATRIX */
-#matrix {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  z-index: 0;
-  pointer-events: none;
+#matrix{
+  position:fixed; top:0; left:0;
+  width:100vw; height:100vh;
+  z-index:0; pointer-events:none;
 }
 
-#ui {
-  position: relative;
-  z-index: 5;
-  margin-top: -8px;
+#ui{
+  position:relative;
+  z-index:5;
+  margin-top:-8px;
 }
 
-h1 {
-  text-align: center;
-  padding: 12px;
-  margin: 0;
-  border-bottom: 1px solid rgba(0,255,0,0.75);
-  text-shadow: 0 0 14px rgba(0,255,0,0.85);
-  letter-spacing: 1px;
+h1{
+  text-align:center;
+  padding:12px; margin:0;
+  border-bottom:1px solid rgba(0,255,0,0.75);
+  text-shadow:0 0 14px rgba(0,255,0,0.85);
+  letter-spacing:1px;
 }
 
-.container {
-  display: flex;
-  height: calc(100vh - 170px);
+.container{
+  display:flex;
+  height:calc(100vh - 170px);
 }
 
-.left, .right {
-  padding: 14px;
-  overflow-y: auto;
+.left, .right{
+  padding:14px;
+  overflow-y:auto;
 }
 
-.left {
-  width: 68%;
-  border-right: 1px solid rgba(0,255,0,0.35);
+.left{
+  width:68%;
+  border-right:1px solid rgba(0,255,0,0.35);
 }
 
-.right { width: 32%; }
+.right{ width:32%; }
 
-.panel {
-  border: 1px solid rgba(0,255,0,0.28);
-  background: rgba(0,0,0,0.58);
-  padding: 12px;
-  border-radius: 16px;
-  box-shadow: 0 0 16px rgba(0,255,0,0.10);
+.panel{
+  border:1px solid rgba(0,255,0,0.28);
+  background:rgba(0,0,0,0.58);
+  padding:12px;
+  border-radius:16px;
+  box-shadow:0 0 16px rgba(0,255,0,0.10);
   backdrop-filter: blur(4px);
 }
 
-h3 {
-  margin: 6px 0 10px;
-  text-shadow: 0 0 10px rgba(0,255,0,0.22);
+h3{
+  margin:6px 0 10px;
+  text-shadow:0 0 10px rgba(0,255,0,0.22);
 }
 
-input[type="text"] {
-  width: 100%;
-  padding: 12px 12px;
-  background: rgba(0,0,0,0.88);
-  color: #00ff00;
-  border: 1px solid rgba(0,255,0,0.85);
-  border-radius: 12px;
-  font-weight: 700;
+input[type="text"], textarea{
+  width:100%;
+  padding:12px;
+  background:rgba(0,0,0,0.88);
+  color:#00ff00;
+  border:1px solid rgba(0,255,0,0.85);
+  border-radius:12px;
+  font-weight:700;
 }
 
-input[type="text"]:focus {
-  outline: none;
-  box-shadow: 0 0 12px rgba(0,255,0,0.8);
+textarea{
+  min-height:120px;
+  resize:vertical;
+  font-weight:600;
+  line-height:1.5;
 }
 
-.small {
-  margin-top: 10px;
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: #99ff99;
-  opacity: 0.95;
+input[type="text"]:focus, textarea:focus{
+  outline:none;
+  box-shadow:0 0 12px rgba(0,255,0,0.8);
 }
 
-button {
-  width: 100%;
-  background: rgba(0,0,0,0.86);
-  color: #00ff00;
-  border: 1px solid rgba(0,255,0,0.55);
-  border-left: 4px solid #00ff00;
-  padding: 11px 12px;
-  margin: 7px 0;
-  cursor: pointer;
-  font-weight: 800;
-  text-align: left;
-  border-radius: 14px;
-  transition: all 0.20s ease;
-  letter-spacing: 0.2px;
+.small{
+  margin-top:10px;
+  font-size:12.5px;
+  line-height:1.55;
+  color:#99ff99;
+  opacity:0.95;
 }
 
-button:hover {
-  background: #00ff00;
-  color: black;
-  box-shadow: 0 0 8px #00ff00, 0 0 22px rgba(0,255,0,0.8);
-  transform: scale(1.01);
+button{
+  width:100%;
+  background:rgba(0,0,0,0.86);
+  color:#00ff00;
+  border:1px solid rgba(0,255,0,0.55);
+  border-left:4px solid #00ff00;
+  padding:11px 12px;
+  margin:7px 0;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  border-radius:14px;
+  transition:all 0.20s ease;
+  letter-spacing:0.2px;
 }
 
-.tag { float: right; margin-left: 12px; }
-
-.high { color: #ff6666; }
-.medium { color: #ffff66; }
-.low { color: #66ff66; }
-
-.sevHeader {
-  margin: 18px 0 10px;
-  padding: 10px 12px;
-  border: 1px solid rgba(0,255,0,0.28);
-  border-left: 4px solid rgba(0,255,0,0.9);
-  border-radius: 16px;
-  background: rgba(0,0,0,0.64);
-  text-shadow: 0 0 12px rgba(0,255,0,0.28);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+button:hover{
+  background:#00ff00;
+  color:black;
+  box-shadow:0 0 8px #00ff00, 0 0 22px rgba(0,255,0,0.8);
+  transform:scale(1.01);
 }
 
-.sevHeader .meta {
-  font-size: 12px;
-  opacity: 0.9;
-  color: #99ff99;
+.tag{ float:right; margin-left:12px; }
+.high{ color:#ff6666; }
+.medium{ color:#ffff66; }
+.low{ color:#66ff66; }
+
+.sevHeader{
+  margin:18px 0 10px;
+  padding:10px 12px;
+  border:1px solid rgba(0,255,0,0.28);
+  border-left:4px solid rgba(0,255,0,0.9);
+  border-radius:16px;
+  background:rgba(0,0,0,0.64);
+  text-shadow:0 0 12px rgba(0,255,0,0.28);
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
 }
 
-.badge {
-  display: inline-block;
-  border: 1px solid rgba(0,255,0,0.35);
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  opacity: 0.95;
-  background: rgba(0,0,0,0.35);
+.sevHeader .meta{
+  font-size:12px;
+  opacity:0.9;
+  color:#99ff99;
 }
 
-.accent {
-  color: #00ffaa;
-  text-shadow: 0 0 7px rgba(0,255,170,0.55);
+.accent{
+  color:#00ffaa;
+  text-shadow:0 0 7px rgba(0,255,170,0.55);
 }
 
-footer {
-  position: fixed;
-  bottom: 0; left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 9px 14px;
-  background: rgba(0,0,0,0.84);
-  border-top: 1px solid rgba(0,255,0,0.35);
-  font-size: 12px;
-  z-index: 6;
+footer{
+  position:fixed;
+  bottom:0; left:0;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  padding:9px 14px;
+  background:rgba(0,0,0,0.84);
+  border-top:1px solid rgba(0,255,0,0.35);
+  font-size:12px;
+  z-index:6;
 }
 
-#footerCenter { text-align: center; }
+#footerCenter{ text-align:center; }
 
 /* Toggle switch */
-.toggleWrap {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(0,255,0,0.25);
-  background: rgba(0,0,0,0.35);
+.toggleWrap{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(0,255,0,0.25);
+  background:rgba(0,0,0,0.35);
 }
-.toggleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-weight: 800;
+.toggleRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-weight:800;
 }
-.switch {
-  position: relative;
-  width: 52px;
-  height: 28px;
-  flex: 0 0 auto;
+.switch{
+  position:relative;
+  width:52px; height:28px;
+  flex:0 0 auto;
 }
-.switch input { display: none; }
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,255,0,0.15);
-  border: 1px solid rgba(0,255,0,0.55);
-  transition: .2s;
-  border-radius: 999px;
-  box-shadow: 0 0 10px rgba(0,255,0,0.15);
+.switch input{ display:none; }
+.slider{
+  position:absolute;
+  cursor:pointer;
+  top:0; left:0; right:0; bottom:0;
+  background:rgba(0,255,0,0.15);
+  border:1px solid rgba(0,255,0,0.55);
+  transition:.2s;
+  border-radius:999px;
+  box-shadow:0 0 10px rgba(0,255,0,0.15);
 }
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 22px;
-  width: 22px;
-  left: 3px;
-  top: 2.5px;
-  background: #00ff00;
-  transition: .2s;
-  border-radius: 999px;
-  box-shadow: 0 0 14px rgba(0,255,0,0.7);
+.slider:before{
+  position:absolute;
+  content:"";
+  height:22px; width:22px;
+  left:3px; top:2.5px;
+  background:#00ff00;
+  transition:.2s;
+  border-radius:999px;
+  box-shadow:0 0 14px rgba(0,255,0,0.7);
 }
-input:checked + .slider {
-  background: rgba(0,255,0,0.22);
-  box-shadow: 0 0 16px rgba(0,255,0,0.22);
+input:checked + .slider{
+  background:rgba(0,255,0,0.22);
+  box-shadow:0 0 16px rgba(0,255,0,0.22);
 }
-input:checked + .slider:before {
-  transform: translateX(24px);
+input:checked + .slider:before{
+  transform:translateX(24px);
 }
 
-/* Mode toggle buttons */
-.modeGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
+/* Mode buttons */
+.modeGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
 }
-.modeBtn {
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(0,255,0,0.35);
-  background: rgba(0,0,0,0.65);
-  cursor: pointer;
-  font-weight: 900;
-  transition: 0.18s ease;
-  text-align: center;
+.modeGrid2{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:10px;
 }
-.modeBtn:hover {
-  box-shadow: 0 0 14px rgba(0,255,0,0.25);
-  transform: translateY(-1px);
+.modeBtn{
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(0,255,0,0.35);
+  background:rgba(0,0,0,0.65);
+  cursor:pointer;
+  font-weight:900;
+  transition:0.18s ease;
+  text-align:center;
 }
-.modeBtn.active {
-  background: rgba(0,255,0,0.18);
-  border-color: rgba(0,255,0,0.75);
-  box-shadow: 0 0 18px rgba(0,255,0,0.25);
+.modeBtn:hover{
+  box-shadow:0 0 14px rgba(0,255,0,0.25);
+  transform:translateY(-1px);
+}
+.modeBtn.active{
+  background:rgba(0,255,0,0.18);
+  border-color:rgba(0,255,0,0.75);
+  box-shadow:0 0 18px rgba(0,255,0,0.25);
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
-  .container { flex-direction: column; height: auto; }
-  .left, .right { width: 100%; border-right: none; }
-  footer { flex-direction: column; text-align: center; gap: 4px; }
+/* Checklist */
+.checkGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+.checkItem{
+  border:1px solid rgba(0,255,0,0.25);
+  background:rgba(0,0,0,0.35);
+  border-radius:14px;
+  padding:10px;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+.checkItem input{
+  margin-top:2px;
+  transform:scale(1.15);
+}
+.checkLabel{
+  font-weight:800;
+  font-size:12.5px;
+  line-height:1.35;
+}
+.scoreBox{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(0,255,0,0.25);
+  background:rgba(0,0,0,0.35);
+}
+.scoreRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  font-weight:900;
+}
+.pill{
+  display:inline-block;
+  padding:2px 10px;
+  border-radius:999px;
+  border:1px solid rgba(0,255,0,0.35);
+  background:rgba(0,0,0,0.4);
+  font-size:12px;
+}
+
+/* Analyzer results */
+.kline{
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(0,255,0,0.22);
+  background:rgba(0,0,0,0.35);
+  margin-top:8px;
+}
+.kline b{ color:#00ffaa; }
+.kmuted{ color:#99ff99; opacity:0.9; font-size:12px; }
+
+/* Mobile */
+@media (max-width:768px){
+  .container{ flex-direction:column; height:auto; }
+  .left, .right{ width:100%; border-right:none; }
+  footer{ flex-direction:column; text-align:center; gap:4px; }
+  .checkGrid{ grid-template-columns:1fr; }
 }
 </style>
 </head>
@@ -266,7 +320,7 @@ input:checked + .slider:before {
 <canvas id="matrix"></canvas>
 
 <div id="ui">
-  <h1>☠ DORK MATRIX v4.1 ☠</h1>
+  <h1>☠ DORK MATRIX v4.2 ☠</h1>
 
   <div class="container">
     <div class="left">
@@ -280,13 +334,16 @@ input:checked + .slider:before {
         <h3 style="margin-top:0;">🎯 Target</h3>
         <input id="target" type="text" placeholder="example.com (optional)" />
 
-        <!-- MODE -->
+        <!-- MODES -->
         <div class="modeGrid">
-          <div id="btnHunt" class="modeBtn active">HUNT MODE</div>
-          <div id="btnRecon" class="modeBtn">RECON MODE</div>
+          <div id="btnHunt" class="modeBtn active">HUNT</div>
+          <div id="btnRecon" class="modeBtn">RECON</div>
+        </div>
+        <div class="modeGrid2">
+          <div id="btnScope" class="modeBtn">SCOPE / POLICY</div>
         </div>
 
-        <!-- NOISE FILTER TOGGLE -->
+        <!-- NOISE -->
         <div class="toggleWrap">
           <div class="toggleRow">
             <div>Noise Filters: <span class="accent" id="noiseState">ON</span></div>
@@ -296,28 +353,79 @@ input:checked + .slider:before {
             </label>
           </div>
           <div class="small" style="margin-top:8px;">
-            ON = reduce trash folders (recommended)<br/>
-            OFF = maximum results (use if results disappear)
+            ON = reduce trash folders<br/>
+            OFF = maximum results (if results disappear)
           </div>
         </div>
 
         <div class="small">
           ✅ HUNT = dorks (cloud + target + misconfig)<br/>
-          ✅ RECON = quick buttons (Wayback, GitHub, JS, robots, sitemap, subdomains)<br/>
-          💡 Right-click any button → copy query
+          ✅ RECON = quick discovery buttons<br/>
+          ✅ SCOPE = VDP / security.txt / bug bounty finder<br/>
+          💡 Right-click any button → copy
         </div>
       </div>
 
       <div style="height:12px;"></div>
 
+      <!-- TOP UPGRADE #2 -->
       <div class="panel">
-        <h3 style="margin-top:0;">⚡ Mobile Workflow</h3>
-        <div class="small">
-          1) Enter target<br/>
-          2) Run RECON first<br/>
-          3) Switch to HUNT<br/>
-          4) Validate minimal proof only ✅
+        <h3 style="margin-top:0;">🧪 Leak Validation Checklist</h3>
+
+        <div class="checkGrid">
+          <label class="checkItem">
+            <input type="checkbox" class="riskChk" data-points="35" />
+            <div class="checkLabel">PII present<br><span class="kmuted">name/email/phone/address/ids</span></div>
+          </label>
+
+          <label class="checkItem">
+            <input type="checkbox" class="riskChk" data-points="50" />
+            <div class="checkLabel">Secrets / Tokens<br><span class="kmuted">api key, bearer, creds</span></div>
+          </label>
+
+          <label class="checkItem">
+            <input type="checkbox" class="riskChk" data-points="25" />
+            <div class="checkLabel">Internal-only markers<br><span class="kmuted">not for public/internal use</span></div>
+          </label>
+
+          <label class="checkItem">
+            <input type="checkbox" class="riskChk" data-points="20" />
+            <div class="checkLabel">No auth required<br><span class="kmuted">public access</span></div>
+          </label>
+
+          <label class="checkItem">
+            <input type="checkbox" class="riskChk" data-points="15" />
+            <div class="checkLabel">Indexed by Google<br><span class="kmuted">searchable / cached</span></div>
+          </label>
+
+          <label class="checkItem">
+            <input type="checkbox" class="riskChk" data-points="30" />
+            <div class="checkLabel">Large dataset<br><span class="kmuted">many rows/files</span></div>
+          </label>
         </div>
+
+        <div class="scoreBox">
+          <div class="scoreRow">
+            <div>Risk Score</div>
+            <div>
+              <span class="pill" id="riskScore">0</span>
+              <span class="pill accent" id="riskLevel">P4-ish</span>
+            </div>
+          </div>
+          <div class="small" id="riskHint" style="margin-top:8px;">
+            Tick what applies → you’ll get a quick severity guess.
+          </div>
+        </div>
+      </div>
+
+      <div style="height:12px;"></div>
+
+      <!-- TOP UPGRADE #3 -->
+      <div class="panel">
+        <h3 style="margin-top:0;">🔎 Keyword Sweep Analyzer</h3>
+        <textarea id="analyzerInput" placeholder="Paste text snippet / doc lines / URL output here..."></textarea>
+        <button id="btnAnalyze">Analyze Snippet</button>
+        <div id="analyzerOut" class="small"></div>
       </div>
     </div>
   </div>
@@ -331,272 +439,254 @@ input:checked + .slider:before {
 
 <script>
 /* =========================
-   MATRIX EFFECT
+   MATRIX
    ========================= */
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
-
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
+function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*";
-const fontSize = 14;
-let drops = [];
-
-function initDrops() {
-  const cols = Math.floor(canvas.width / fontSize);
-  drops = Array(cols).fill(1);
-}
+const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*";
+const fontSize=14;
+let drops=[];
+function initDrops(){ const cols=Math.floor(canvas.width/fontSize); drops=Array(cols).fill(1); }
 initDrops();
 window.addEventListener("resize", initDrops);
 
-function drawMatrix() {
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
+function drawMatrix(){
+  ctx.fillStyle="rgba(0,0,0,0.25)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = "#00ff00";
-  ctx.font = fontSize + "px monospace";
-
+  ctx.fillStyle="#00ff00";
+  ctx.font=fontSize+"px monospace";
   drops.forEach((y,i)=>{
-    const text = chars[Math.floor(Math.random()*chars.length)];
+    const text=chars[Math.floor(Math.random()*chars.length)];
     ctx.fillText(text,i*fontSize,y*fontSize);
-    if(y*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    if(y*fontSize>canvas.height && Math.random()>0.975) drops[i]=0;
     drops[i]++;
   });
 }
-setInterval(drawMatrix, 50);
+setInterval(drawMatrix,50);
 
 /* =========================
    STATE
    ========================= */
-let MODE = "HUNT"; // HUNT | RECON
+let MODE="HUNT"; // HUNT | RECON | SCOPE
 
 /* =========================
-   NOISE FILTER (toggle)
+   NOISE FILTER toggle
    ========================= */
 const NOISE_FILTER =
   '-inurl:assets -inurl:static -inurl:media -inurl:img -inurl:images -inurl:css -inurl:js -inurl:fonts ' +
   '-inurl:blog -inurl:press -inurl:news -inurl:about -inurl:careers -inurl:jobs ' +
   '-inurl:privacy -inurl:terms -inurl:cookie -inurl:help -inurl:support -inurl:docs';
 
-function getNoiseFilter() {
+function getNoiseFilter(){
   return document.getElementById("noiseToggle").checked ? NOISE_FILTER : "";
 }
-
-function updateNoiseUI() {
-  const enabled = document.getElementById("noiseToggle").checked;
-  document.getElementById("noiseState").textContent = enabled ? "ON" : "OFF";
+function updateNoiseUI(){
+  const enabled=document.getElementById("noiseToggle").checked;
+  document.getElementById("noiseState").textContent=enabled?"ON":"OFF";
 }
 
 /* =========================
-   CLOUD DORKS (same)
+   DORK DATA
    ========================= */
 const cloudDorks = [
-  { q: 'site:s3.amazonaws.com ("backup" OR "db_backup" OR "database dump") filetype:sql', severity: 'HIGH', provider: 'AWS', conf: 85 },
-  { q: 'site:blob.core.windows.net ("connection string") filetype:json', severity: 'HIGH', provider: 'AZURE', conf: 90 },
-  { q: 'site:storage.googleapis.com ("firebase" OR "firestore") filetype:json', severity: 'HIGH', provider: 'GCP', conf: 86 },
+  { q:'site:s3.amazonaws.com ("backup" OR "db_backup" OR "database dump") filetype:sql', severity:'HIGH', provider:'AWS', conf:85 },
+  { q:'site:blob.core.windows.net ("connection string") filetype:json', severity:'HIGH', provider:'AZURE', conf:90 },
+  { q:'site:storage.googleapis.com ("firebase" OR "firestore") filetype:json', severity:'HIGH', provider:'GCP', conf:86 },
 
-  { q: 'site:s3.amazonaws.com ("confidential" OR "internal use only" OR "restricted") filetype:pdf', severity: 'MEDIUM', provider: 'AWS', conf: 70 },
-  { q: 'site:blob.core.windows.net ("internal" OR "confidential") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE', conf: 72 },
+  { q:'site:s3.amazonaws.com ("confidential" OR "internal use only" OR "restricted") filetype:pdf', severity:'MEDIUM', provider:'AWS', conf:70 },
+  { q:'site:blob.core.windows.net ("internal" OR "confidential") filetype:pdf', severity:'MEDIUM', provider:'AZURE', conf:72 },
 
-  { q: 'intitle:"index of" backup', severity: 'LOW', provider: 'GLOBAL', conf: 40 }
+  { q:'intitle:"index of" backup', severity:'LOW', provider:'GLOBAL', conf:40 }
 ];
 
-/* =========================
-   TARGET DORKS (UPDATED)
-   ❌ Removed filetype restrictions as you asked
-   ✅ full results (webpages + docs)
-   ========================= */
+/* Target dorks — no filetype restrictions */
 const targetDorks = [
-  { q: '("internal use only" OR "not for public release" OR "do not distribute" OR "strictly private")', severity: 'HIGH', provider: 'TARGET', conf: 88 },
-  { q: '("confidential" OR "restricted") ("invoice" OR "payroll" OR "employee" OR "KYC" OR "bank" OR "salary")', severity: 'HIGH', provider: 'TARGET', conf: 92 },
-  { q: '("backup" OR "dump" OR "db_backup" OR "database dump")', severity: 'HIGH', provider: 'TARGET', conf: 86 },
-  { q: '("appsettings" OR "configuration") ("secret" OR "password" OR "token" OR "apikey" OR "api key")', severity: 'HIGH', provider: 'TARGET', conf: 90 },
+  { q:'("internal use only" OR "not for public release" OR "do not distribute" OR "strictly private")', severity:'HIGH', provider:'TARGET', conf:88 },
+  { q:'("confidential" OR "restricted") ("invoice" OR "payroll" OR "employee" OR "KYC" OR "bank" OR "salary")', severity:'HIGH', provider:'TARGET', conf:92 },
+  { q:'("backup" OR "dump" OR "db_backup" OR "database dump")', severity:'HIGH', provider:'TARGET', conf:86 },
+  { q:'("appsettings" OR "configuration") ("secret" OR "password" OR "token" OR "apikey" OR "api key")', severity:'HIGH', provider:'TARGET', conf:90 },
 
-  { q: '("stack trace" OR "fatal error" OR "unhandled exception" OR "exception")', severity: 'MEDIUM', provider: 'TARGET', conf: 75 },
-  { q: 'intitle:"index of" ("backup" OR "dump" OR "logs" OR "config" OR "database")', severity: 'MEDIUM', provider: 'TARGET', conf: 70 }
+  { q:'("stack trace" OR "fatal error" OR "unhandled exception" OR "exception")', severity:'MEDIUM', provider:'TARGET', conf:75 },
+  { q:'intitle:"index of" ("backup" OR "dump" OR "logs" OR "config" OR "database")', severity:'MEDIUM', provider:'TARGET', conf:70 }
 ];
 
-/* =========================
-   MISCONFIG / DEBUG (kept)
-   ========================= */
 const misconfigDorks = [
-  { q: 'inurl:/.git/ (HEAD OR "index")', severity: 'HIGH', provider: 'MISCONFIG', conf: 92 },
-  { q: '(filetype:zip OR filetype:tar OR filetype:gz OR filetype:rar) (backup OR dump OR "database")', severity: 'HIGH', provider: 'MISCONFIG', conf: 85 },
+  { q:'inurl:/.git/ (HEAD OR "index")', severity:'HIGH', provider:'MISCONFIG', conf:92 },
+  { q:'(filetype:zip OR filetype:tar OR filetype:gz OR filetype:rar) (backup OR dump OR "database")', severity:'HIGH', provider:'MISCONFIG', conf:85 },
 
-  { q: '(inurl:phpinfo OR intitle:"phpinfo()")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 70 },
-  { q: '("Whoops, looks like something went wrong." OR "Ignition")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 78 },
-  { q: '(inurl:swagger OR inurl:"api-docs" OR inurl:openapi) (json OR yaml OR ui)', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 74 }
+  { q:'(inurl:phpinfo OR intitle:"phpinfo()")', severity:'MEDIUM', provider:'MISCONFIG', conf:70 },
+  { q:'("Whoops, looks like something went wrong." OR "Ignition")', severity:'MEDIUM', provider:'MISCONFIG', conf:78 },
+  { q:'(inurl:swagger OR inurl:"api-docs" OR inurl:openapi) (json OR yaml OR ui)', severity:'MEDIUM', provider:'MISCONFIG', conf:74 }
 ];
 
 /* =========================
-   RECON BUTTONS (new)
-   These generate queries from target
+   RECON items
    ========================= */
-function reconItems(target) {
-  if (!target) {
-    return [
-      { label: "⚠ Enter target for Recon Mode", q: 'site:example.com', provider: "RECON", severity: "LOW", conf: 0 }
-    ];
+function reconItems(target){
+  if(!target){
+    return [{ label:"⚠ Enter target for Recon Mode", q:'site:example.com', type:"SEARCH" }];
   }
-
-  const t = target.trim();
+  const t=target.trim();
   return [
-    // Core discovery
-    { label: "🌐 site:target", q: `site:${t}`, provider: "RECON", severity: "LOW", conf: 0 },
-    { label: "🌐 Subdomains", q: `site:*.${t} -www`, provider: "RECON", severity: "LOW", conf: 0 },
+    { label:"🌐 site:target", q:`site:${t}`, type:"SEARCH" },
+    { label:"🌐 Subdomains", q:`site:*.${t} -www`, type:"SEARCH" },
+    { label:"🤖 robots.txt", open:`https://${t}/robots.txt`, type:"OPEN" },
+    { label:"🗺 sitemap.xml", open:`https://${t}/sitemap.xml`, type:"OPEN" },
 
-    // Robots / sitemap
-    { label: "🤖 robots.txt", open: `https://${t}/robots.txt` },
-    { label: "🗺 sitemap.xml", open: `https://${t}/sitemap.xml` },
+    { label:"🧩 JavaScript files", q:`site:${t} ext:js`, type:"SEARCH" },
+    { label:"🧨 Source maps", q:`site:${t} filetype:map`, type:"SEARCH" },
 
-    // JS recon
-    { label: "🧩 JavaScript files", q: `site:${t} ext:js`, provider: "RECON", severity: "LOW", conf: 0 },
-    { label: "🧨 Source maps", q: `site:${t} filetype:map`, provider: "RECON", severity: "LOW", conf: 0 },
+    { label:"🛰 API endpoints", q:`site:${t} (inurl:api OR inurl:v1 OR inurl:v2 OR inurl:graphql)`, type:"SEARCH" },
+    { label:"📘 Swagger/OpenAPI", q:`site:${t} (inurl:swagger OR inurl:openapi OR inurl:api-docs)`, type:"SEARCH" },
 
-    // API recon
-    { label: "🛰 API endpoints", q: `site:${t} (inurl:api OR inurl:v1 OR inurl:v2 OR inurl:graphql)`, provider: "RECON", severity: "LOW", conf: 0 },
-    { label: "📘 Swagger/OpenAPI", q: `site:${t} (inurl:swagger OR inurl:openapi OR inurl:api-docs)`, provider: "RECON", severity: "LOW", conf: 0 },
+    { label:"🐙 GitHub mentions", q:`site:github.com "${t}"`, type:"SEARCH" },
+    { label:"🔑 GitHub secrets hunt", q:`site:github.com "${t}" (api_key OR apikey OR token OR secret OR password OR AWS_SECRET_ACCESS_KEY)`, type:"SEARCH" },
 
-    // GitHub Recon
-    { label: "🐙 GitHub mentions", q: `site:github.com "${t}"`, provider: "RECON", severity: "LOW", conf: 0 },
-    { label: "🔑 GitHub secrets hunt", q: `site:github.com "${t}" (api_key OR apikey OR token OR secret OR password OR AWS_SECRET_ACCESS_KEY)`, provider: "RECON", severity: "LOW", conf: 0 },
-
-    // Wayback Recon
-    { label: "🕒 Wayback URLs", open: `https://web.archive.org/web/*/${t}/*` }
+    { label:"🕒 Wayback URLs", open:`https://web.archive.org/web/*/${t}/*`, type:"OPEN" }
   ];
 }
 
 /* =========================
-   Query builder with optional filters
-   Target + Misconfig use site:target + optional NOISE
-   Cloud keeps as-is (only narrowed by keyword)
+   TOP UPGRADE #1: SCOPE / POLICY Finder
    ========================= */
-function buildFinalDork(dork, target) {
-  const noise = getNoiseFilter();
-  const hasSite = /site:\S+/i.test(dork);
+function scopeItems(target){
+  if(!target){
+    return [{ label:"⚠ Enter target for Scope/Policy Mode", q:'site:example.com security.txt', type:"SEARCH" }];
+  }
+  const t=target.trim();
+  return [
+    { label:"🧾 security.txt (.well-known)", open:`https://${t}/.well-known/security.txt`, type:"OPEN" },
+    { label:"🧾 security.txt (root)", open:`https://${t}/security.txt`, type:"OPEN" },
 
-  if (!target) return dork;
+    { label:"🛡 VDP / Responsible Disclosure", q:`site:${t} ("vulnerability disclosure" OR "responsible disclosure" OR VDP OR "security report")`, type:"SEARCH" },
+    { label:"🏆 Bug Bounty (platform finder)", q:`site:${t} ("bug bounty" OR bugcrowd OR hackerone OR intigriti OR "security bounty")`, type:"SEARCH" },
 
-  // If already has site: keep it, optionally add keyword narrowing only
-  if (hasSite) return `${dork} "${target}"`.trim();
+    { label:"📩 Security contact email", q:`site:${t} (security@ OR "security contact" OR "report a vulnerability")`, type:"SEARCH" },
+    { label:"🔐 PGP key", q:`site:${t} (PGP OR "public key" OR "pgp key")`, type:"SEARCH" },
 
+    { label:"✅ In-scope assets hints", q:`site:${t} (scope OR "in scope" OR "out of scope") ("bug bounty" OR "security")`, type:"SEARCH" },
+    { label:"🌍 External official scope pages", q:`("${t}" AND (bugcrowd OR hackerone OR intigriti) AND scope)`, type:"SEARCH" }
+  ];
+}
+
+/* =========================
+   Query builder
+   ========================= */
+function buildFinalDork(dork, target){
+  const noise=getNoiseFilter();
+  const hasSite=/site:\S+/i.test(dork);
+  if(!target) return dork;
+  if(hasSite) return `${dork} "${target}"`.trim();
   return `site:${target} ${dork} ${noise}`.trim();
 }
 
-function search(dork, mode) {
-  const target = document.getElementById('target').value.trim();
-  let finalDork = dork;
+function search(dork, mode){
+  const target=document.getElementById('target').value.trim();
+  let finalDork=dork;
 
-  if (target) {
-    if (mode === 'TARGET' || mode === 'MISCONFIG') {
-      finalDork = buildFinalDork(dork, target);
-    } else if (mode === 'CLOUD') {
-      finalDork = `${dork} "${target}"`;
-    } else {
-      finalDork = dork;
+  if(target){
+    if(mode==="TARGET" || mode==="MISCONFIG"){
+      finalDork=buildFinalDork(dork, target);
+    } else if(mode==="CLOUD"){
+      finalDork=`${dork} "${target}"`;
     }
   }
-
   window.open('https://www.google.com/search?q=' + encodeURIComponent(finalDork), '_blank');
 }
 
-function getActiveDorks() {
-  const target = document.getElementById('target').value.trim();
+/* =========================
+   Active list by mode
+   ========================= */
+function getActiveItems(){
+  const target=document.getElementById('target').value.trim();
 
-  if (MODE === "RECON") {
-    return reconItems(target);
-  }
+  if(MODE==="RECON") return reconItems(target);
+  if(MODE==="SCOPE") return scopeItems(target);
 
   // HUNT
-  const merged = [...cloudDorks];
-  if (target) merged.push(...targetDorks, ...misconfigDorks);
+  const merged=[...cloudDorks];
+  if(target) merged.push(...targetDorks, ...misconfigDorks);
   return merged;
 }
 
 /* =========================
-   RENDER
+   Render
    ========================= */
-function render() {
-  const list = document.getElementById("dorkList");
-  list.innerHTML = "";
+function render(){
+  const list=document.getElementById("dorkList");
+  list.innerHTML="";
 
-  const target = document.getElementById('target').value.trim();
-  const data = getActiveDorks();
+  const target=document.getElementById('target').value.trim();
+  const data=getActiveItems();
 
-  // Footer status
-  if (MODE === "RECON") {
-    document.getElementById("footerCenter").innerHTML =
-      `Mode: <span class="accent">RECON</span> • Target: <span class="accent">${target ? "SET" : "EMPTY"}</span>`;
+  if(MODE==="RECON"){
+    document.getElementById("footerCenter").innerHTML=
+      `Mode: <span class="accent">RECON</span> • Target: <span class="accent">${target? "SET":"EMPTY"}</span>`;
+  } else if(MODE==="SCOPE"){
+    document.getElementById("footerCenter").innerHTML=
+      `Mode: <span class="accent">SCOPE</span> • Target: <span class="accent">${target? "SET":"EMPTY"}</span>`;
   } else {
-    document.getElementById("footerCenter").innerHTML =
-      `Mode: <span class="accent">HUNT</span> • Target: <span class="accent">${target ? "ON" : "OFF"}</span> • Noise: <span class="accent">${document.getElementById("noiseToggle").checked ? "ON" : "OFF"}</span>`;
+    document.getElementById("footerCenter").innerHTML=
+      `Mode: <span class="accent">HUNT</span> • Target: <span class="accent">${target? "ON":"OFF"}</span> • Noise: <span class="accent">${document.getElementById("noiseToggle").checked? "ON":"OFF"}</span>`;
   }
 
-  // RECON MODE RENDER (simple)
-  if (MODE === "RECON") {
-    const header = document.createElement("div");
-    header.className = "sevHeader";
-    header.innerHTML = `
-      <div><b>🛰 RECON MODE</b></div>
-      <div class="meta">Wayback • GitHub • JS • robots/sitemap • Subdomains</div>
-    `;
+  if(MODE==="RECON" || MODE==="SCOPE"){
+    const header=document.createElement("div");
+    header.className="sevHeader";
+    header.innerHTML = MODE==="RECON"
+      ? `<div><b>🛰 RECON MODE</b></div><div class="meta">Wayback • GitHub • JS • robots/sitemap • Subdomains</div>`
+      : `<div><b>🛡 SCOPE / POLICY MODE</b></div><div class="meta">security.txt • VDP • bug bounty • contacts</div>`;
     list.appendChild(header);
 
-    data.forEach(item => {
-      const b = document.createElement("button");
-      if (item.open) {
+    data.forEach(item=>{
+      const b=document.createElement("button");
+      if(item.type==="OPEN"){
         b.innerHTML = `${item.label} <span class="tag low">[OPEN]</span>`;
-        b.onclick = () => window.open(item.open, "_blank");
-        b.oncontextmenu = e => { e.preventDefault(); navigator.clipboard.writeText(item.open); };
+        b.onclick = ()=> window.open(item.open, "_blank");
+        b.oncontextmenu = e=>{ e.preventDefault(); navigator.clipboard.writeText(item.open); };
       } else {
         b.innerHTML = `${item.label} → ${item.q} <span class="tag low">[SEARCH]</span>`;
-        b.onclick = () => window.open('https://www.google.com/search?q=' + encodeURIComponent(item.q), '_blank');
-        b.oncontextmenu = e => { e.preventDefault(); navigator.clipboard.writeText(item.q); };
+        b.onclick = ()=> window.open('https://www.google.com/search?q=' + encodeURIComponent(item.q), "_blank");
+        b.oncontextmenu = e=>{ e.preventDefault(); navigator.clipboard.writeText(item.q); };
       }
       list.appendChild(b);
     });
     return;
   }
 
-  // HUNT MODE RENDER (severity grouping)
-  const sections = [
-    { sev: "HIGH", label: "🔴 HIGH Severity", meta: "Tier-3 / High-impact exposure" },
-    { sev: "MEDIUM", label: "🟡 MEDIUM Severity", meta: "Tier-2 / Sensitive + Misconfig" },
-    { sev: "LOW", label: "🟢 LOW Severity", meta: "Recon / Supporting" }
+  // HUNT mode severity grouping
+  const sections=[
+    { sev:"HIGH", label:"🔴 HIGH Severity", meta:"Tier-3 / High-impact exposure" },
+    { sev:"MEDIUM", label:"🟡 MEDIUM Severity", meta:"Tier-2 / Sensitive + Misconfig" },
+    { sev:"LOW", label:"🟢 LOW Severity", meta:"Recon / Supporting" }
   ];
 
-  sections.forEach(sec => {
-    const header = document.createElement("div");
-    header.className = "sevHeader";
-    header.innerHTML = `
-      <div><b>${sec.label}</b></div>
-      <div class="meta">${sec.meta}</div>
-    `;
+  sections.forEach(sec=>{
+    const header=document.createElement("div");
+    header.className="sevHeader";
+    header.innerHTML=`<div><b>${sec.label}</b></div><div class="meta">${sec.meta}</div>`;
     list.appendChild(header);
 
-    const items = data.filter(x => x.severity === sec.sev);
-    if (items.length === 0) return;
+    const items=data.filter(x=>x.severity===sec.sev);
+    if(items.length===0) return;
 
-    items.forEach(d => {
-      const b = document.createElement("button");
-      const sevClass = sec.sev.toLowerCase();
-
+    items.forEach(d=>{
+      const b=document.createElement("button");
+      const sevClass=sec.sev.toLowerCase();
       const mode =
-        d.provider === "TARGET" ? "TARGET" :
-        d.provider === "MISCONFIG" ? "MISCONFIG" :
+        d.provider==="TARGET" ? "TARGET" :
+        d.provider==="MISCONFIG" ? "MISCONFIG" :
         "CLOUD";
 
-      const conf = typeof d.conf === "number" ? d.conf : 60;
+      const conf = typeof d.conf==="number" ? d.conf : 60;
 
-      b.innerHTML =
-        `[${d.provider}] [CONF ${conf}] ${d.q} <span class="tag ${sevClass}">[${sec.sev}]</span>`;
-
-      b.onclick = () => search(d.q, mode);
-      b.oncontextmenu = e => { e.preventDefault(); navigator.clipboard.writeText(d.q); };
+      b.innerHTML = `[${d.provider}] [CONF ${conf}] ${d.q} <span class="tag ${sevClass}">[${sec.sev}]</span>`;
+      b.onclick = ()=> search(d.q, mode);
+      b.oncontextmenu = e=>{ e.preventDefault(); navigator.clipboard.writeText(d.q); };
 
       list.appendChild(b);
     });
@@ -604,35 +694,160 @@ function render() {
 }
 
 /* =========================
-   UI EVENTS
+   UI Mode events
    ========================= */
-const btnHunt = document.getElementById("btnHunt");
-const btnRecon = document.getElementById("btnRecon");
+const btnHunt=document.getElementById("btnHunt");
+const btnRecon=document.getElementById("btnRecon");
+const btnScope=document.getElementById("btnScope");
 
-btnHunt.addEventListener("click", () => {
-  MODE = "HUNT";
-  btnHunt.classList.add("active");
-  btnRecon.classList.remove("active");
+function setMode(m){
+  MODE=m;
+  btnHunt.classList.toggle("active", m==="HUNT");
+  btnRecon.classList.toggle("active", m==="RECON");
+  btnScope.classList.toggle("active", m==="SCOPE");
   render();
-});
+}
 
-btnRecon.addEventListener("click", () => {
-  MODE = "RECON";
-  btnRecon.classList.add("active");
-  btnHunt.classList.remove("active");
-  render();
-});
+btnHunt.addEventListener("click", ()=>setMode("HUNT"));
+btnRecon.addEventListener("click", ()=>setMode("RECON"));
+btnScope.addEventListener("click", ()=>setMode("SCOPE"));
 
-document.getElementById("target").addEventListener("input", () => {
+document.getElementById("target").addEventListener("input", ()=>{
   clearTimeout(window.__rT);
-  window.__rT = setTimeout(render, 150);
+  window.__rT=setTimeout(render,150);
 });
 
-document.getElementById("noiseToggle").addEventListener("change", () => {
+document.getElementById("noiseToggle").addEventListener("change", ()=>{
   updateNoiseUI();
   render();
 });
 
+/* =========================
+   TOP UPGRADE #2: Risk scoring
+   ========================= */
+function updateRiskScore(){
+  const checks = document.querySelectorAll(".riskChk");
+  let score = 0;
+  checks.forEach(c=>{
+    if(c.checked) score += parseInt(c.dataset.points || "0", 10);
+  });
+
+  document.getElementById("riskScore").textContent = score;
+
+  let level = "P4-ish";
+  let hint = "Low severity / informational likely. Still report if in scope.";
+
+  if(score >= 90){
+    level = "P2-ish";
+    hint = "High impact likely (PII/secrets/large dataset). Strong report.";
+  } else if(score >= 60){
+    level = "P3-ish";
+    hint = "Significant exposure likely. Write a clean report + impact.";
+  } else if(score >= 30){
+    level = "P4-ish";
+    hint = "Info disclosure / misconfig. Reportable on many programs.";
+  }
+
+  document.getElementById("riskLevel").textContent = level;
+  document.getElementById("riskHint").textContent = hint;
+}
+
+document.querySelectorAll(".riskChk").forEach(c=>{
+  c.addEventListener("change", updateRiskScore);
+});
+updateRiskScore();
+
+/* =========================
+   TOP UPGRADE #3: Keyword Sweep Analyzer
+   ========================= */
+const KEY_SETS = [
+  {
+    name: "Secrets / Tokens",
+    keywords: ["api_key","apikey","api key","token","bearer","authorization","secret","client_secret","accesskey","private key","BEGIN PRIVATE KEY","x-api-key","sessionid","jwt"],
+    weight: 3
+  },
+  {
+    name: "PII Indicators",
+    keywords: ["aadhaar","aadhar","pan","passport","ssn","national id","dob","date of birth","address","phone","mobile","email","customer","account number","bank","iban","ifsc"],
+    weight: 2
+  },
+  {
+    name: "Internal Markers",
+    keywords: ["internal use only","not for public","do not distribute","strictly private","confidential","restricted","proprietary","staff only","admin only"],
+    weight: 2
+  },
+  {
+    name: "Cloud / Storage Trails",
+    keywords: ["s3.amazonaws.com","blob.core.windows.net","storage.googleapis.com","amazonaws.com","azure","gcp","firebase","bucket","container"],
+    weight: 1
+  },
+  {
+    name: "Debug / Errors",
+    keywords: ["stack trace","fatal error","unhandled exception","debug","whoops","ignition","whitelabel error page","traceback"],
+    weight: 1
+  }
+];
+
+function analyzeSnippet(){
+  const text = (document.getElementById("analyzerInput").value || "").toLowerCase().trim();
+  const out = document.getElementById("analyzerOut");
+  out.innerHTML = "";
+
+  if(!text){
+    out.innerHTML = `<div class="kline"><b>No input</b> — paste a snippet and hit Analyze.</div>`;
+    return;
+  }
+
+  let totalScore = 0;
+  let hits = [];
+
+  KEY_SETS.forEach(set=>{
+    const found = [];
+    set.keywords.forEach(k=>{
+      if(text.includes(k.toLowerCase())) found.push(k);
+    });
+    if(found.length){
+      totalScore += set.weight * found.length;
+      hits.push({ name:set.name, found, weight:set.weight });
+    }
+  });
+
+  let verdict = "Low signal";
+  let verdictHint = "Probably harmless/public, but still check context.";
+
+  if(totalScore >= 10){
+    verdict = "HIGH signal";
+    verdictHint = "Very likely reportable — looks like sensitive data / secrets / internal.";
+  } else if(totalScore >= 5){
+    verdict = "MEDIUM signal";
+    verdictHint = "Looks interesting — validate access + identify data sensitivity.";
+  }
+
+  out.innerHTML += `
+    <div class="kline">
+      <b>Verdict:</b> ${verdict} <span class="pill accent">Score ${totalScore}</span><br/>
+      <span class="kmuted">${verdictHint}</span>
+    </div>
+  `;
+
+  if(!hits.length){
+    out.innerHTML += `<div class="kline"><b>No keywords matched</b><br/><span class="kmuted">Try pasting more text or different section.</span></div>`;
+    return;
+  }
+
+  hits.forEach(h=>{
+    out.innerHTML += `
+      <div class="kline">
+        <b>${h.name}</b> <span class="pill">x${h.found.length}</span><br/>
+        <span class="kmuted">${h.found.slice(0,12).join(", ")}${h.found.length>12 ? ", ..." : ""}</span>
+      </div>
+    `;
+  });
+}
+
+document.getElementById("btnAnalyze").addEventListener("click", analyzeSnippet);
+
+/* init */
 updateNoiseUI();
 render();
 </script>
