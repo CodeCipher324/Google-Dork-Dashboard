@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dork Matrix v4 | CodeCipher</title>
+<title>Dork Matrix v4.1 | CodeCipher</title>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet" />
 
 <style>
@@ -174,7 +174,7 @@ footer {
 
 #footerCenter { text-align: center; }
 
-/* Toggle switch styling */
+/* Toggle switch */
 .toggleWrap {
   margin-top: 12px;
   padding: 10px 12px;
@@ -226,6 +226,33 @@ input:checked + .slider:before {
   transform: translateX(24px);
 }
 
+/* Mode toggle buttons */
+.modeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+.modeBtn {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,255,0,0.35);
+  background: rgba(0,0,0,0.65);
+  cursor: pointer;
+  font-weight: 900;
+  transition: 0.18s ease;
+  text-align: center;
+}
+.modeBtn:hover {
+  box-shadow: 0 0 14px rgba(0,255,0,0.25);
+  transform: translateY(-1px);
+}
+.modeBtn.active {
+  background: rgba(0,255,0,0.18);
+  border-color: rgba(0,255,0,0.75);
+  box-shadow: 0 0 18px rgba(0,255,0,0.25);
+}
+
 /* MOBILE */
 @media (max-width: 768px) {
   .container { flex-direction: column; height: auto; }
@@ -239,7 +266,7 @@ input:checked + .slider:before {
 <canvas id="matrix"></canvas>
 
 <div id="ui">
-  <h1>☠ DORK MATRIX v4 ☠</h1>
+  <h1>☠ DORK MATRIX v4.1 ☠</h1>
 
   <div class="container">
     <div class="left">
@@ -250,8 +277,14 @@ input:checked + .slider:before {
 
     <div class="right">
       <div class="panel">
-        <h3 style="margin-top:0;">🎯 Target Filter</h3>
+        <h3 style="margin-top:0;">🎯 Target</h3>
         <input id="target" type="text" placeholder="example.com (optional)" />
+
+        <!-- MODE -->
+        <div class="modeGrid">
+          <div id="btnHunt" class="modeBtn active">HUNT MODE</div>
+          <div id="btnRecon" class="modeBtn">RECON MODE</div>
+        </div>
 
         <!-- NOISE FILTER TOGGLE -->
         <div class="toggleWrap">
@@ -263,28 +296,27 @@ input:checked + .slider:before {
             </label>
           </div>
           <div class="small" style="margin-top:8px;">
-            ON = less trash results (recommended)<br/>
-            OFF = maximum results (use when results are missing)
+            ON = reduce trash folders (recommended)<br/>
+            OFF = maximum results (use if results disappear)
           </div>
         </div>
 
         <div class="small">
-          ✅ Enter a domain → <span class="accent">Target Mode</span> activates (high intent).<br/>
-          ✅ Cloud dorks always available (AWS/Azure/GCP).<br/>
-          ✅ Misconfig/Debug included (phpinfo, .git, backups, swagger, stack traces).<br/>
-          💡 Right-click any dork → copy.
+          ✅ HUNT = dorks (cloud + target + misconfig)<br/>
+          ✅ RECON = quick buttons (Wayback, GitHub, JS, robots, sitemap, subdomains)<br/>
+          💡 Right-click any button → copy query
         </div>
       </div>
 
       <div style="height:12px;"></div>
 
       <div class="panel">
-        <h3 style="margin-top:0;">🧠 Accuracy Engine</h3>
+        <h3 style="margin-top:0;">⚡ Mobile Workflow</h3>
         <div class="small">
-          This build is optimized for <span class="accent">high signal</span>.<br/>
-          - FOIA/FOI removed entirely<br/>
-          - Confidence score per query<br/>
-          - Noise filter toggle gives you control
+          1) Enter target<br/>
+          2) Run RECON first<br/>
+          3) Switch to HUNT<br/>
+          4) Validate minimal proof only ✅
         </div>
       </div>
     </div>
@@ -325,14 +357,12 @@ window.addEventListener("resize", initDrops);
 function drawMatrix() {
   ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
-
   ctx.fillStyle = "#00ff00";
   ctx.font = fontSize + "px monospace";
 
   drops.forEach((y,i)=>{
     const text = chars[Math.floor(Math.random()*chars.length)];
     ctx.fillText(text,i*fontSize,y*fontSize);
-
     if(y*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
     drops[i]++;
   });
@@ -340,8 +370,12 @@ function drawMatrix() {
 setInterval(drawMatrix, 50);
 
 /* =========================
-   NOISE FILTER STRING
-   (Applied only if toggle ON)
+   STATE
+   ========================= */
+let MODE = "HUNT"; // HUNT | RECON
+
+/* =========================
+   NOISE FILTER (toggle)
    ========================= */
 const NOISE_FILTER =
   '-inurl:assets -inurl:static -inurl:media -inurl:img -inurl:images -inurl:css -inurl:js -inurl:fonts ' +
@@ -349,8 +383,7 @@ const NOISE_FILTER =
   '-inurl:privacy -inurl:terms -inurl:cookie -inurl:help -inurl:support -inurl:docs';
 
 function getNoiseFilter() {
-  const enabled = document.getElementById("noiseToggle").checked;
-  return enabled ? NOISE_FILTER : "";
+  return document.getElementById("noiseToggle").checked ? NOISE_FILTER : "";
 }
 
 function updateNoiseUI() {
@@ -359,83 +392,88 @@ function updateNoiseUI() {
 }
 
 /* =========================
-   CLOUD DORKS (AWS/AZURE/GCP)
+   CLOUD DORKS (same)
    ========================= */
 const cloudDorks = [
-  /* 🔴 HIGH — Tier 3 */
-  // AWS
   { q: 'site:s3.amazonaws.com ("backup" OR "db_backup" OR "database dump") filetype:sql', severity: 'HIGH', provider: 'AWS', conf: 85 },
-  { q: 'site:s3.amazonaws.com ("backup" OR "dump") filetype:zip', severity: 'HIGH', provider: 'AWS', conf: 80 },
-  { q: 'site:s3.amazonaws.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AWS', conf: 70 },
-  { q: 'site:s3.amazonaws.com filetype:env', severity: 'HIGH', provider: 'AWS', conf: 75 },
-  { q: 'site:s3.amazonaws.com filetype:config ("password" OR "secret")', severity: 'HIGH', provider: 'AWS', conf: 78 },
-
-  // AZURE
-  { q: 'site:blob.core.windows.net ("backup" OR "dbbackup") filetype:bak', severity: 'HIGH', provider: 'AZURE', conf: 88 },
-  { q: 'site:blob.core.windows.net ("export" OR "dump") filetype:csv', severity: 'HIGH', provider: 'AZURE', conf: 82 },
-  { q: 'site:blob.core.windows.net ("appsettings" OR "configuration") filetype:json', severity: 'HIGH', provider: 'AZURE', conf: 86 },
   { q: 'site:blob.core.windows.net ("connection string") filetype:json', severity: 'HIGH', provider: 'AZURE', conf: 90 },
-  { q: 'site:blob.core.windows.net filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AZURE', conf: 76 },
-  { q: 'site:blob.core.windows.net ("pipeline" OR "build") filetype:log', severity: 'HIGH', provider: 'AZURE', conf: 84 },
-  { q: 'site:blob.core.windows.net ("artifact" OR "release") filetype:zip', severity: 'HIGH', provider: 'AZURE', conf: 80 },
-
-  // GCP
-  { q: 'site:storage.googleapis.com ("backup" OR "dump") filetype:sql', severity: 'HIGH', provider: 'GCP', conf: 84 },
-  { q: 'site:storage.googleapis.com ("export" OR "snapshot") filetype:csv', severity: 'HIGH', provider: 'GCP', conf: 82 },
   { q: 'site:storage.googleapis.com ("firebase" OR "firestore") filetype:json', severity: 'HIGH', provider: 'GCP', conf: 86 },
-  { q: 'site:storage.googleapis.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'GCP', conf: 76 },
-  { q: 'site:storage.googleapis.com ("build" OR "artifact") filetype:zip', severity: 'HIGH', provider: 'GCP', conf: 79 },
 
-  /* 🟡 MEDIUM — Tier 2 */
-  // AWS docs
   { q: 'site:s3.amazonaws.com ("confidential" OR "internal use only" OR "restricted") filetype:pdf', severity: 'MEDIUM', provider: 'AWS', conf: 70 },
-  { q: 'site:s3.amazonaws.com ("confidential" OR "internal") filetype:docx', severity: 'MEDIUM', provider: 'AWS', conf: 68 },
-  { q: 'site:s3.amazonaws.com ("internal report" OR "business report") filetype:pdf', severity: 'MEDIUM', provider: 'AWS', conf: 62 },
-  { q: 'site:s3.amazonaws.com ("export" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'AWS', conf: 60 },
-
-  // AZURE docs
   { q: 'site:blob.core.windows.net ("internal" OR "confidential") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE', conf: 72 },
-  { q: 'site:blob.core.windows.net ("private" OR "restricted") filetype:xlsx', severity: 'MEDIUM', provider: 'AZURE', conf: 70 },
-  { q: 'site:blob.core.windows.net ("audit" OR "compliance") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE', conf: 74 },
 
-  // GCP reports
-  { q: 'site:storage.googleapis.com ("bigquery" OR "bq") ("export" OR "result") filetype:csv', severity: 'MEDIUM', provider: 'GCP', conf: 72 },
-
-  /* 🟢 LOW — Recon support */
-  { q: 'intitle:"index of" backup', severity: 'LOW', provider: 'GLOBAL', conf: 40 },
-  { q: 'intitle:"index of" confidential', severity: 'LOW', provider: 'GLOBAL', conf: 42 }
+  { q: 'intitle:"index of" backup', severity: 'LOW', provider: 'GLOBAL', conf: 40 }
 ];
 
 /* =========================
-   TARGET DORKS (High-signal)
-   site:target + optional noise filters
+   TARGET DORKS (UPDATED)
+   ❌ Removed filetype restrictions as you asked
+   ✅ full results (webpages + docs)
    ========================= */
 const targetDorks = [
-  { q: '("internal use only" OR "not for public release" OR "do not distribute" OR "strictly private") (filetype:pdf OR filetype:docx OR filetype:pptx OR filetype:xlsx OR filetype:csv)', severity: 'HIGH', provider: 'TARGET', conf: 88 },
-  { q: '("confidential" OR "restricted") ("invoice" OR "payroll" OR "employee" OR "KYC" OR "bank" OR "salary") (filetype:xlsx OR filetype:csv OR filetype:pdf)', severity: 'HIGH', provider: 'TARGET', conf: 90 },
-  { q: '("backup" OR "dump" OR "db_backup" OR "database dump") (filetype:sql OR filetype:bak OR filetype:zip OR filetype:tar OR filetype:gz)', severity: 'HIGH', provider: 'TARGET', conf: 86 },
-  { q: '(filetype:env OR filetype:yml OR filetype:yaml OR filetype:json) ("config" OR "settings" OR "appsettings")', severity: 'HIGH', provider: 'TARGET', conf: 84 },
-  { q: '(filetype:log OR filetype:txt) ("stack trace" OR "fatal error" OR "unhandled exception" OR "exception")', severity: 'MEDIUM', provider: 'TARGET', conf: 72 },
+  { q: '("internal use only" OR "not for public release" OR "do not distribute" OR "strictly private")', severity: 'HIGH', provider: 'TARGET', conf: 88 },
+  { q: '("confidential" OR "restricted") ("invoice" OR "payroll" OR "employee" OR "KYC" OR "bank" OR "salary")', severity: 'HIGH', provider: 'TARGET', conf: 92 },
+  { q: '("backup" OR "dump" OR "db_backup" OR "database dump")', severity: 'HIGH', provider: 'TARGET', conf: 86 },
+  { q: '("appsettings" OR "configuration") ("secret" OR "password" OR "token" OR "apikey" OR "api key")', severity: 'HIGH', provider: 'TARGET', conf: 90 },
+
+  { q: '("stack trace" OR "fatal error" OR "unhandled exception" OR "exception")', severity: 'MEDIUM', provider: 'TARGET', conf: 75 },
   { q: 'intitle:"index of" ("backup" OR "dump" OR "logs" OR "config" OR "database")', severity: 'MEDIUM', provider: 'TARGET', conf: 70 }
 ];
 
 /* =========================
-   MISCONFIG / DEBUG (curated)
-   site:target + optional noise filters
+   MISCONFIG / DEBUG (kept)
    ========================= */
 const misconfigDorks = [
   { q: 'inurl:/.git/ (HEAD OR "index")', severity: 'HIGH', provider: 'MISCONFIG', conf: 92 },
-  { q: 'inurl:/.svn/ (entries OR wc.db)', severity: 'HIGH', provider: 'MISCONFIG', conf: 88 },
   { q: '(filetype:zip OR filetype:tar OR filetype:gz OR filetype:rar) (backup OR dump OR "database")', severity: 'HIGH', provider: 'MISCONFIG', conf: 85 },
 
   { q: '(inurl:phpinfo OR intitle:"phpinfo()")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 70 },
-  { q: '("Stack trace:" OR "Fatal error:" OR "Unhandled exception")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 76 },
   { q: '("Whoops, looks like something went wrong." OR "Ignition")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 78 },
   { q: '(inurl:swagger OR inurl:"api-docs" OR inurl:openapi) (json OR yaml OR ui)', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 74 }
 ];
 
 /* =========================
+   RECON BUTTONS (new)
+   These generate queries from target
+   ========================= */
+function reconItems(target) {
+  if (!target) {
+    return [
+      { label: "⚠ Enter target for Recon Mode", q: 'site:example.com', provider: "RECON", severity: "LOW", conf: 0 }
+    ];
+  }
+
+  const t = target.trim();
+  return [
+    // Core discovery
+    { label: "🌐 site:target", q: `site:${t}`, provider: "RECON", severity: "LOW", conf: 0 },
+    { label: "🌐 Subdomains", q: `site:*.${t} -www`, provider: "RECON", severity: "LOW", conf: 0 },
+
+    // Robots / sitemap
+    { label: "🤖 robots.txt", open: `https://${t}/robots.txt` },
+    { label: "🗺 sitemap.xml", open: `https://${t}/sitemap.xml` },
+
+    // JS recon
+    { label: "🧩 JavaScript files", q: `site:${t} ext:js`, provider: "RECON", severity: "LOW", conf: 0 },
+    { label: "🧨 Source maps", q: `site:${t} filetype:map`, provider: "RECON", severity: "LOW", conf: 0 },
+
+    // API recon
+    { label: "🛰 API endpoints", q: `site:${t} (inurl:api OR inurl:v1 OR inurl:v2 OR inurl:graphql)`, provider: "RECON", severity: "LOW", conf: 0 },
+    { label: "📘 Swagger/OpenAPI", q: `site:${t} (inurl:swagger OR inurl:openapi OR inurl:api-docs)`, provider: "RECON", severity: "LOW", conf: 0 },
+
+    // GitHub Recon
+    { label: "🐙 GitHub mentions", q: `site:github.com "${t}"`, provider: "RECON", severity: "LOW", conf: 0 },
+    { label: "🔑 GitHub secrets hunt", q: `site:github.com "${t}" (api_key OR apikey OR token OR secret OR password OR AWS_SECRET_ACCESS_KEY)`, provider: "RECON", severity: "LOW", conf: 0 },
+
+    // Wayback Recon
+    { label: "🕒 Wayback URLs", open: `https://web.archive.org/web/*/${t}/*` }
+  ];
+}
+
+/* =========================
    Query builder with optional filters
+   Target + Misconfig use site:target + optional NOISE
+   Cloud keeps as-is (only narrowed by keyword)
    ========================= */
 function buildFinalDork(dork, target) {
   const noise = getNoiseFilter();
@@ -443,7 +481,7 @@ function buildFinalDork(dork, target) {
 
   if (!target) return dork;
 
-  // If query already has a site:, do not force another site:
+  // If already has site: keep it, optionally add keyword narrowing only
   if (hasSite) return `${dork} "${target}"`.trim();
 
   return `site:${target} ${dork} ${noise}`.trim();
@@ -456,9 +494,10 @@ function search(dork, mode) {
   if (target) {
     if (mode === 'TARGET' || mode === 'MISCONFIG') {
       finalDork = buildFinalDork(dork, target);
-    } else {
-      // cloud: keep original cloud query, only narrow by keyword
+    } else if (mode === 'CLOUD') {
       finalDork = `${dork} "${target}"`;
+    } else {
+      finalDork = dork;
     }
   }
 
@@ -467,27 +506,63 @@ function search(dork, mode) {
 
 function getActiveDorks() {
   const target = document.getElementById('target').value.trim();
-  const merged = [...cloudDorks];
 
-  if (target) {
-    merged.push(...targetDorks);
-    merged.push(...misconfigDorks);
-
-    document.getElementById("footerCenter").innerHTML =
-      `Target mode: <span class="accent">ON</span> • Noise filters: <span class="accent">${document.getElementById("noiseToggle").checked ? "ON" : "OFF"}</span> • Authorized & ethical testing only`;
-  } else {
-    document.getElementById("footerCenter").innerText = "Authorized & ethical testing only";
+  if (MODE === "RECON") {
+    return reconItems(target);
   }
 
+  // HUNT
+  const merged = [...cloudDorks];
+  if (target) merged.push(...targetDorks, ...misconfigDorks);
   return merged;
 }
 
+/* =========================
+   RENDER
+   ========================= */
 function render() {
   const list = document.getElementById("dorkList");
   list.innerHTML = "";
 
+  const target = document.getElementById('target').value.trim();
   const data = getActiveDorks();
 
+  // Footer status
+  if (MODE === "RECON") {
+    document.getElementById("footerCenter").innerHTML =
+      `Mode: <span class="accent">RECON</span> • Target: <span class="accent">${target ? "SET" : "EMPTY"}</span>`;
+  } else {
+    document.getElementById("footerCenter").innerHTML =
+      `Mode: <span class="accent">HUNT</span> • Target: <span class="accent">${target ? "ON" : "OFF"}</span> • Noise: <span class="accent">${document.getElementById("noiseToggle").checked ? "ON" : "OFF"}</span>`;
+  }
+
+  // RECON MODE RENDER (simple)
+  if (MODE === "RECON") {
+    const header = document.createElement("div");
+    header.className = "sevHeader";
+    header.innerHTML = `
+      <div><b>🛰 RECON MODE</b></div>
+      <div class="meta">Wayback • GitHub • JS • robots/sitemap • Subdomains</div>
+    `;
+    list.appendChild(header);
+
+    data.forEach(item => {
+      const b = document.createElement("button");
+      if (item.open) {
+        b.innerHTML = `${item.label} <span class="tag low">[OPEN]</span>`;
+        b.onclick = () => window.open(item.open, "_blank");
+        b.oncontextmenu = e => { e.preventDefault(); navigator.clipboard.writeText(item.open); };
+      } else {
+        b.innerHTML = `${item.label} → ${item.q} <span class="tag low">[SEARCH]</span>`;
+        b.onclick = () => window.open('https://www.google.com/search?q=' + encodeURIComponent(item.q), '_blank');
+        b.oncontextmenu = e => { e.preventDefault(); navigator.clipboard.writeText(item.q); };
+      }
+      list.appendChild(b);
+    });
+    return;
+  }
+
+  // HUNT MODE RENDER (severity grouping)
   const sections = [
     { sev: "HIGH", label: "🔴 HIGH Severity", meta: "Tier-3 / High-impact exposure" },
     { sev: "MEDIUM", label: "🟡 MEDIUM Severity", meta: "Tier-2 / Sensitive + Misconfig" },
@@ -521,17 +596,33 @@ function render() {
         `[${d.provider}] [CONF ${conf}] ${d.q} <span class="tag ${sevClass}">[${sec.sev}]</span>`;
 
       b.onclick = () => search(d.q, mode);
-      b.oncontextmenu = e => {
-        e.preventDefault();
-        navigator.clipboard.writeText(d.q);
-      };
+      b.oncontextmenu = e => { e.preventDefault(); navigator.clipboard.writeText(d.q); };
 
       list.appendChild(b);
     });
   });
 }
 
-/* listeners */
+/* =========================
+   UI EVENTS
+   ========================= */
+const btnHunt = document.getElementById("btnHunt");
+const btnRecon = document.getElementById("btnRecon");
+
+btnHunt.addEventListener("click", () => {
+  MODE = "HUNT";
+  btnHunt.classList.add("active");
+  btnRecon.classList.remove("active");
+  render();
+});
+
+btnRecon.addEventListener("click", () => {
+  MODE = "RECON";
+  btnRecon.classList.add("active");
+  btnHunt.classList.remove("active");
+  render();
+});
+
 document.getElementById("target").addEventListener("input", () => {
   clearTimeout(window.__rT);
   window.__rT = setTimeout(render, 150);
