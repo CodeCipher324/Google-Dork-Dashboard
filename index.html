@@ -29,7 +29,7 @@ body {
 #ui {
   position: relative;
   z-index: 5;
-  margin-top: -8px; /* slight upward lift */
+  margin-top: -8px;
 }
 
 h1 {
@@ -72,7 +72,7 @@ h3 {
   text-shadow: 0 0 10px rgba(0,255,0,0.22);
 }
 
-input {
+input[type="text"] {
   width: 100%;
   padding: 12px 12px;
   background: rgba(0,0,0,0.88);
@@ -82,7 +82,7 @@ input {
   font-weight: 700;
 }
 
-input:focus {
+input[type="text"]:focus {
   outline: none;
   box-shadow: 0 0 12px rgba(0,255,0,0.8);
 }
@@ -174,6 +174,58 @@ footer {
 
 #footerCenter { text-align: center; }
 
+/* Toggle switch styling */
+.toggleWrap {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,255,0,0.25);
+  background: rgba(0,0,0,0.35);
+}
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 800;
+}
+.switch {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  flex: 0 0 auto;
+}
+.switch input { display: none; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,255,0,0.15);
+  border: 1px solid rgba(0,255,0,0.55);
+  transition: .2s;
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(0,255,0,0.15);
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  top: 2.5px;
+  background: #00ff00;
+  transition: .2s;
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(0,255,0,0.7);
+}
+input:checked + .slider {
+  background: rgba(0,255,0,0.22);
+  box-shadow: 0 0 16px rgba(0,255,0,0.22);
+}
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
 /* MOBILE */
 @media (max-width: 768px) {
   .container { flex-direction: column; height: auto; }
@@ -199,11 +251,27 @@ footer {
     <div class="right">
       <div class="panel">
         <h3 style="margin-top:0;">🎯 Target Filter</h3>
-        <input id="target" placeholder="example.com (optional)" />
+        <input id="target" type="text" placeholder="example.com (optional)" />
+
+        <!-- NOISE FILTER TOGGLE -->
+        <div class="toggleWrap">
+          <div class="toggleRow">
+            <div>Noise Filters: <span class="accent" id="noiseState">ON</span></div>
+            <label class="switch">
+              <input type="checkbox" id="noiseToggle" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="small" style="margin-top:8px;">
+            ON = less trash results (recommended)<br/>
+            OFF = maximum results (use when results are missing)
+          </div>
+        </div>
+
         <div class="small">
-          ✅ Enter a domain → <span class="accent">Target Mode</span> activates (high intent + noise filtering).<br/>
+          ✅ Enter a domain → <span class="accent">Target Mode</span> activates (high intent).<br/>
           ✅ Cloud dorks always available (AWS/Azure/GCP).<br/>
-          ✅ Misconfig/Debug dorks included (phpinfo, .git, backups, swagger, stack traces).<br/>
+          ✅ Misconfig/Debug included (phpinfo, .git, backups, swagger, stack traces).<br/>
           💡 Right-click any dork → copy.
         </div>
       </div>
@@ -214,9 +282,9 @@ footer {
         <h3 style="margin-top:0;">🧠 Accuracy Engine</h3>
         <div class="small">
           This build is optimized for <span class="accent">high signal</span>.<br/>
-          - Adds <span class="badge">-inurl</span> noise filters on target/misconfig dorks<br/>
-          - Removes FOIA/FOI noise entirely<br/>
-          - Shows confidence score per query
+          - FOIA/FOI removed entirely<br/>
+          - Confidence score per query<br/>
+          - Noise filter toggle gives you control
         </div>
       </div>
     </div>
@@ -272,17 +340,26 @@ function drawMatrix() {
 setInterval(drawMatrix, 50);
 
 /* =========================
-   GLOBAL NOISE FILTERS
-   Applied ONLY for Target & Misconfig
+   NOISE FILTER STRING
+   (Applied only if toggle ON)
    ========================= */
 const NOISE_FILTER =
   '-inurl:assets -inurl:static -inurl:media -inurl:img -inurl:images -inurl:css -inurl:js -inurl:fonts ' +
   '-inurl:blog -inurl:press -inurl:news -inurl:about -inurl:careers -inurl:jobs ' +
   '-inurl:privacy -inurl:terms -inurl:cookie -inurl:help -inurl:support -inurl:docs';
 
+function getNoiseFilter() {
+  const enabled = document.getElementById("noiseToggle").checked;
+  return enabled ? NOISE_FILTER : "";
+}
+
+function updateNoiseUI() {
+  const enabled = document.getElementById("noiseToggle").checked;
+  document.getElementById("noiseState").textContent = enabled ? "ON" : "OFF";
+}
+
 /* =========================
    CLOUD DORKS (AWS/AZURE/GCP)
-   Tier 2 + Tier 3 (kept)
    ========================= */
 const cloudDorks = [
   /* 🔴 HIGH — Tier 3 */
@@ -315,98 +392,61 @@ const cloudDorks = [
   { q: 'site:s3.amazonaws.com ("confidential" OR "internal") filetype:docx', severity: 'MEDIUM', provider: 'AWS', conf: 68 },
   { q: 'site:s3.amazonaws.com ("internal report" OR "business report") filetype:pdf', severity: 'MEDIUM', provider: 'AWS', conf: 62 },
   { q: 'site:s3.amazonaws.com ("export" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'AWS', conf: 60 },
-  { q: 'site:s3.amazonaws.com "cengage" ("internal" OR "restricted")', severity: 'MEDIUM', provider: 'AWS', conf: 58 },
 
   // AZURE docs
   { q: 'site:blob.core.windows.net ("internal" OR "confidential") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE', conf: 72 },
   { q: 'site:blob.core.windows.net ("private" OR "restricted") filetype:xlsx', severity: 'MEDIUM', provider: 'AZURE', conf: 70 },
-  { q: 'site:blob.core.windows.net ("report" OR "analysis") filetype:csv', severity: 'MEDIUM', provider: 'AZURE', conf: 66 },
   { q: 'site:blob.core.windows.net ("audit" OR "compliance") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE', conf: 74 },
-  { q: 'site:blob.core.windows.net ("internal policy") filetype:docx', severity: 'MEDIUM', provider: 'AZURE', conf: 62 },
 
   // GCP reports
-  { q: 'site:storage.googleapis.com ("analytics" OR "report") filetype:json', severity: 'MEDIUM', provider: 'GCP', conf: 64 },
   { q: 'site:storage.googleapis.com ("bigquery" OR "bq") ("export" OR "result") filetype:csv', severity: 'MEDIUM', provider: 'GCP', conf: 72 },
-  { q: 'site:storage.googleapis.com ("dashboard" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'GCP', conf: 60 },
 
   /* 🟢 LOW — Recon support */
   { q: 'intitle:"index of" backup', severity: 'LOW', provider: 'GLOBAL', conf: 40 },
-  { q: 'intitle:"index of" confidential', severity: 'LOW', provider: 'GLOBAL', conf: 42 },
-  { q: '"internal use only" filetype:pdf', severity: 'LOW', provider: 'GLOBAL', conf: 35 },
-  { q: '"do not distribute" filetype:pptx', severity: 'LOW', provider: 'GLOBAL', conf: 34 }
+  { q: 'intitle:"index of" confidential', severity: 'LOW', provider: 'GLOBAL', conf: 42 }
 ];
 
 /* =========================
    TARGET DORKS (High-signal)
-   Will inject site:target + noise filters
+   site:target + optional noise filters
    ========================= */
 const targetDorks = [
-  // 🔴 HIGH: strict internal markers + sensitive filetypes
   { q: '("internal use only" OR "not for public release" OR "do not distribute" OR "strictly private") (filetype:pdf OR filetype:docx OR filetype:pptx OR filetype:xlsx OR filetype:csv)', severity: 'HIGH', provider: 'TARGET', conf: 88 },
-
-  // 🔴 HIGH: sensitive exports / spreadsheets (more accurate)
   { q: '("confidential" OR "restricted") ("invoice" OR "payroll" OR "employee" OR "KYC" OR "bank" OR "salary") (filetype:xlsx OR filetype:csv OR filetype:pdf)', severity: 'HIGH', provider: 'TARGET', conf: 90 },
-
-  // 🔴 HIGH: backups/dumps
   { q: '("backup" OR "dump" OR "db_backup" OR "database dump") (filetype:sql OR filetype:bak OR filetype:zip OR filetype:tar OR filetype:gz)', severity: 'HIGH', provider: 'TARGET', conf: 86 },
-
-  // 🔴 HIGH: config-like leaks (still OSINT)
   { q: '(filetype:env OR filetype:yml OR filetype:yaml OR filetype:json) ("config" OR "settings" OR "appsettings")', severity: 'HIGH', provider: 'TARGET', conf: 84 },
-
-  // 🟡 MEDIUM: logs/stack traces
   { q: '(filetype:log OR filetype:txt) ("stack trace" OR "fatal error" OR "unhandled exception" OR "exception")', severity: 'MEDIUM', provider: 'TARGET', conf: 72 },
-
-  // 🟡 MEDIUM: directory listing strong
   { q: 'intitle:"index of" ("backup" OR "dump" OR "logs" OR "config" OR "database")', severity: 'MEDIUM', provider: 'TARGET', conf: 70 }
 ];
 
 /* =========================
-   MISCONFIG / DEBUG DORKS (curated)
-   Report-worthy (P4/P3)
-   Uses target & noise filters
+   MISCONFIG / DEBUG (curated)
+   site:target + optional noise filters
    ========================= */
 const misconfigDorks = [
-  // 🔴 HIGH: .git/.svn exposure
   { q: 'inurl:/.git/ (HEAD OR "index")', severity: 'HIGH', provider: 'MISCONFIG', conf: 92 },
   { q: 'inurl:/.svn/ (entries OR wc.db)', severity: 'HIGH', provider: 'MISCONFIG', conf: 88 },
-
-  // 🔴 HIGH: backup archives
   { q: '(filetype:zip OR filetype:tar OR filetype:gz OR filetype:rar) (backup OR dump OR "database")', severity: 'HIGH', provider: 'MISCONFIG', conf: 85 },
 
-  // 🟡 MEDIUM: phpinfo
   { q: '(inurl:phpinfo OR intitle:"phpinfo()")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 70 },
-  { q: 'intitle:"phpinfo()" "PHP Version"', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 74 },
-
-  // 🟡 MEDIUM: stack traces/debug modes
   { q: '("Stack trace:" OR "Fatal error:" OR "Unhandled exception")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 76 },
   { q: '("Whoops, looks like something went wrong." OR "Ignition")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 78 },
-  { q: '("Whitelabel Error Page" OR "There was an unexpected error")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 66 },
-
-  // 🟡 MEDIUM: Swagger/OpenAPI exposures
-  { q: '(inurl:swagger OR inurl:"api-docs" OR inurl:openapi) (json OR yaml OR ui)', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 74 },
-
-  // 🟡 MEDIUM: public logs
-  { q: '(filetype:log OR ext:log) ("error" OR "exception" OR "trace")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 72 }
+  { q: '(inurl:swagger OR inurl:"api-docs" OR inurl:openapi) (json OR yaml OR ui)', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 74 }
 ];
 
 /* =========================
-   SEARCH LOGIC
-   - Target/Misconfig uses site:target + NOISE_FILTER
-   - Cloud keeps as-is (optionally narrowed by keyword)
+   Query builder with optional filters
    ========================= */
-function buildFinalDork(d, target) {
-  const hasSite = /site:\S+/i.test(d);
+function buildFinalDork(dork, target) {
+  const noise = getNoiseFilter();
+  const hasSite = /site:\S+/i.test(dork);
 
-  // If no target, return as-is
-  if (!target) return d;
+  if (!target) return dork;
 
-  // force target scoping
-  let out = `site:${target} ${d} ${NOISE_FILTER}`;
+  // If query already has a site:, do not force another site:
+  if (hasSite) return `${dork} "${target}"`.trim();
 
-  // remove duplicate site: if accidentally included
-  if (hasSite) out = `${d} "${target}"`;
-
-  return out.trim();
+  return `site:${target} ${dork} ${noise}`.trim();
 }
 
 function search(dork, mode) {
@@ -417,7 +457,7 @@ function search(dork, mode) {
     if (mode === 'TARGET' || mode === 'MISCONFIG') {
       finalDork = buildFinalDork(dork, target);
     } else {
-      // cloud mode: keep cloud query intact, add target as keyword narrowing
+      // cloud: keep original cloud query, only narrow by keyword
       finalDork = `${dork} "${target}"`;
     }
   }
@@ -425,9 +465,6 @@ function search(dork, mode) {
   window.open('https://www.google.com/search?q=' + encodeURIComponent(finalDork), '_blank');
 }
 
-/* =========================
-   DATA MERGE
-   ========================= */
 function getActiveDorks() {
   const target = document.getElementById('target').value.trim();
   const merged = [...cloudDorks];
@@ -437,7 +474,7 @@ function getActiveDorks() {
     merged.push(...misconfigDorks);
 
     document.getElementById("footerCenter").innerHTML =
-      `Target mode: <span class="accent">ON</span> • Noise filters: <span class="accent">ON</span> • Authorized & ethical testing only`;
+      `Target mode: <span class="accent">ON</span> • Noise filters: <span class="accent">${document.getElementById("noiseToggle").checked ? "ON" : "OFF"}</span> • Authorized & ethical testing only`;
   } else {
     document.getElementById("footerCenter").innerText = "Authorized & ethical testing only";
   }
@@ -445,9 +482,6 @@ function getActiveDorks() {
   return merged;
 }
 
-/* =========================
-   RENDER (Severity Grouping Option 2)
-   ========================= */
 function render() {
   const list = document.getElementById("dorkList");
   list.innerHTML = "";
@@ -476,7 +510,6 @@ function render() {
       const b = document.createElement("button");
       const sevClass = sec.sev.toLowerCase();
 
-      // Mode determines how we build final query
       const mode =
         d.provider === "TARGET" ? "TARGET" :
         d.provider === "MISCONFIG" ? "MISCONFIG" :
@@ -498,12 +531,18 @@ function render() {
   });
 }
 
-/* Live update on target input */
+/* listeners */
 document.getElementById("target").addEventListener("input", () => {
   clearTimeout(window.__rT);
   window.__rT = setTimeout(render, 150);
 });
 
+document.getElementById("noiseToggle").addEventListener("change", () => {
+  updateNoiseUI();
+  render();
+});
+
+updateNoiseUI();
 render();
 </script>
 </body>
