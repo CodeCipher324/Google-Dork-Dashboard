@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dork Matrix | CodeCipher</title>
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
+<title>Dork Matrix v4 | CodeCipher</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet" />
 
 <style>
 * { box-sizing: border-box; }
@@ -36,8 +36,9 @@ h1 {
   text-align: center;
   padding: 12px;
   margin: 0;
-  border-bottom: 1px solid #00ff00;
-  text-shadow: 0 0 12px #00ff00;
+  border-bottom: 1px solid rgba(0,255,0,0.75);
+  text-shadow: 0 0 14px rgba(0,255,0,0.85);
+  letter-spacing: 1px;
 }
 
 .container {
@@ -46,84 +47,116 @@ h1 {
 }
 
 .left, .right {
-  padding: 15px;
+  padding: 14px;
   overflow-y: auto;
 }
 
 .left {
-  width: 65%;
-  border-right: 1px solid #00ff00;
+  width: 68%;
+  border-right: 1px solid rgba(0,255,0,0.35);
 }
 
-.right {
-  width: 35%;
-}
+.right { width: 32%; }
 
 .panel {
-  border: 1px solid rgba(0,255,0,0.35);
-  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(0,255,0,0.28);
+  background: rgba(0,0,0,0.58);
   padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0,255,0,0.08);
+  border-radius: 16px;
+  box-shadow: 0 0 16px rgba(0,255,0,0.10);
+  backdrop-filter: blur(4px);
+}
+
+h3 {
+  margin: 6px 0 10px;
+  text-shadow: 0 0 10px rgba(0,255,0,0.22);
 }
 
 input {
   width: 100%;
-  padding: 12px;
-  background: rgba(0,0,0,0.85);
+  padding: 12px 12px;
+  background: rgba(0,0,0,0.88);
   color: #00ff00;
-  border: 1px solid #00ff00;
-  border-radius: 10px;
+  border: 1px solid rgba(0,255,0,0.85);
+  border-radius: 12px;
+  font-weight: 700;
 }
 
 input:focus {
   outline: none;
-  box-shadow: 0 0 10px #00ff00;
+  box-shadow: 0 0 12px rgba(0,255,0,0.8);
 }
 
 .small {
   margin-top: 10px;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12.5px;
+  line-height: 1.55;
   color: #99ff99;
+  opacity: 0.95;
 }
 
 button {
   width: 100%;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.86);
   color: #00ff00;
-  border: 1px solid rgba(0,255,0,0.6);
-  border-left: 3px solid #00ff00;
-  padding: 10px;
-  margin: 6px 0;
+  border: 1px solid rgba(0,255,0,0.55);
+  border-left: 4px solid #00ff00;
+  padding: 11px 12px;
+  margin: 7px 0;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 800;
   text-align: left;
-  border-radius: 10px;
-  transition: all 0.2s ease;
+  border-radius: 14px;
+  transition: all 0.20s ease;
+  letter-spacing: 0.2px;
 }
 
 button:hover {
   background: #00ff00;
   color: black;
-  box-shadow: 0 0 15px #00ff00;
+  box-shadow: 0 0 8px #00ff00, 0 0 22px rgba(0,255,0,0.8);
   transform: scale(1.01);
 }
 
-.tag { float: right; }
+.tag { float: right; margin-left: 12px; }
 
 .high { color: #ff6666; }
 .medium { color: #ffff66; }
 .low { color: #66ff66; }
 
 .sevHeader {
-  margin: 18px 0 8px;
+  margin: 18px 0 10px;
   padding: 10px 12px;
+  border: 1px solid rgba(0,255,0,0.28);
+  border-left: 4px solid rgba(0,255,0,0.9);
+  border-radius: 16px;
+  background: rgba(0,0,0,0.64);
+  text-shadow: 0 0 12px rgba(0,255,0,0.28);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sevHeader .meta {
+  font-size: 12px;
+  opacity: 0.9;
+  color: #99ff99;
+}
+
+.badge {
+  display: inline-block;
   border: 1px solid rgba(0,255,0,0.35);
-  border-left: 3px solid rgba(0,255,0,0.9);
-  border-radius: 12px;
-  background: rgba(0,0,0,0.6);
-  text-shadow: 0 0 10px rgba(0,255,0,0.3);
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  opacity: 0.95;
+  background: rgba(0,0,0,0.35);
+}
+
+.accent {
+  color: #00ffaa;
+  text-shadow: 0 0 7px rgba(0,255,170,0.55);
 }
 
 footer {
@@ -132,17 +165,14 @@ footer {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 8px 14px;
-  background: rgba(0,0,0,0.82);
-  border-top: 1px solid rgba(0,255,0,0.4);
+  padding: 9px 14px;
+  background: rgba(0,0,0,0.84);
+  border-top: 1px solid rgba(0,255,0,0.35);
   font-size: 12px;
   z-index: 6;
 }
 
-.accent {
-  color: #00ffaa;
-  text-shadow: 0 0 6px rgba(0,255,170,0.5);
-}
+#footerCenter { text-align: center; }
 
 /* MOBILE */
 @media (max-width: 768px) {
@@ -157,7 +187,7 @@ footer {
 <canvas id="matrix"></canvas>
 
 <div id="ui">
-  <h1>☠ DORK MATRIX ☠</h1>
+  <h1>☠ DORK MATRIX v4 ☠</h1>
 
   <div class="container">
     <div class="left">
@@ -171,9 +201,22 @@ footer {
         <h3 style="margin-top:0;">🎯 Target Filter</h3>
         <input id="target" placeholder="example.com (optional)" />
         <div class="small">
-          ✅ If you enter a domain → tool adds <span class="accent">Target Dorks</span> automatically.<br/>
-          ✅ Cloud dorks still work (AWS/Azure/GCP).<br/>
-          💡 Right-click a dork button to copy.
+          ✅ Enter a domain → <span class="accent">Target Mode</span> activates (high intent + noise filtering).<br/>
+          ✅ Cloud dorks always available (AWS/Azure/GCP).<br/>
+          ✅ Misconfig/Debug dorks included (phpinfo, .git, backups, swagger, stack traces).<br/>
+          💡 Right-click any dork → copy.
+        </div>
+      </div>
+
+      <div style="height:12px;"></div>
+
+      <div class="panel">
+        <h3 style="margin-top:0;">🧠 Accuracy Engine</h3>
+        <div class="small">
+          This build is optimized for <span class="accent">high signal</span>.<br/>
+          - Adds <span class="badge">-inurl</span> noise filters on target/misconfig dorks<br/>
+          - Removes FOIA/FOI noise entirely<br/>
+          - Shows confidence score per query
         </div>
       </div>
     </div>
@@ -228,165 +271,221 @@ function drawMatrix() {
 }
 setInterval(drawMatrix, 50);
 
+/* =========================
+   GLOBAL NOISE FILTERS
+   Applied ONLY for Target & Misconfig
+   ========================= */
+const NOISE_FILTER =
+  '-inurl:assets -inurl:static -inurl:media -inurl:img -inurl:images -inurl:css -inurl:js -inurl:fonts ' +
+  '-inurl:blog -inurl:press -inurl:news -inurl:about -inurl:careers -inurl:jobs ' +
+  '-inurl:privacy -inurl:terms -inurl:cookie -inurl:help -inurl:support -inurl:docs';
 
 /* =========================
    CLOUD DORKS (AWS/AZURE/GCP)
-   Tier 2 + Tier 3
+   Tier 2 + Tier 3 (kept)
    ========================= */
 const cloudDorks = [
-
   /* 🔴 HIGH — Tier 3 */
   // AWS
-  { q: 'site:s3.amazonaws.com ("backup" OR "db_backup" OR "database dump") filetype:sql', severity: 'HIGH', provider: 'AWS' },
-  { q: 'site:s3.amazonaws.com ("backup" OR "dump") filetype:zip', severity: 'HIGH', provider: 'AWS' },
-  { q: 'site:s3.amazonaws.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AWS' },
-  { q: 'site:s3.amazonaws.com filetype:env', severity: 'HIGH', provider: 'AWS' },
-  { q: 'site:s3.amazonaws.com filetype:config ("password" OR "secret")', severity: 'HIGH', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com ("backup" OR "db_backup" OR "database dump") filetype:sql', severity: 'HIGH', provider: 'AWS', conf: 85 },
+  { q: 'site:s3.amazonaws.com ("backup" OR "dump") filetype:zip', severity: 'HIGH', provider: 'AWS', conf: 80 },
+  { q: 'site:s3.amazonaws.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AWS', conf: 70 },
+  { q: 'site:s3.amazonaws.com filetype:env', severity: 'HIGH', provider: 'AWS', conf: 75 },
+  { q: 'site:s3.amazonaws.com filetype:config ("password" OR "secret")', severity: 'HIGH', provider: 'AWS', conf: 78 },
 
   // AZURE
-  { q: 'site:blob.core.windows.net ("backup" OR "dbbackup") filetype:bak', severity: 'HIGH', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("export" OR "dump") filetype:csv', severity: 'HIGH', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("appsettings" OR "configuration") filetype:json', severity: 'HIGH', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("connection string") filetype:json', severity: 'HIGH', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("pipeline" OR "build") filetype:log', severity: 'HIGH', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("artifact" OR "release") filetype:zip', severity: 'HIGH', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("backup" OR "dbbackup") filetype:bak', severity: 'HIGH', provider: 'AZURE', conf: 88 },
+  { q: 'site:blob.core.windows.net ("export" OR "dump") filetype:csv', severity: 'HIGH', provider: 'AZURE', conf: 82 },
+  { q: 'site:blob.core.windows.net ("appsettings" OR "configuration") filetype:json', severity: 'HIGH', provider: 'AZURE', conf: 86 },
+  { q: 'site:blob.core.windows.net ("connection string") filetype:json', severity: 'HIGH', provider: 'AZURE', conf: 90 },
+  { q: 'site:blob.core.windows.net filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'AZURE', conf: 76 },
+  { q: 'site:blob.core.windows.net ("pipeline" OR "build") filetype:log', severity: 'HIGH', provider: 'AZURE', conf: 84 },
+  { q: 'site:blob.core.windows.net ("artifact" OR "release") filetype:zip', severity: 'HIGH', provider: 'AZURE', conf: 80 },
 
   // GCP
-  { q: 'site:storage.googleapis.com ("backup" OR "dump") filetype:sql', severity: 'HIGH', provider: 'GCP' },
-  { q: 'site:storage.googleapis.com ("export" OR "snapshot") filetype:csv', severity: 'HIGH', provider: 'GCP' },
-  { q: 'site:storage.googleapis.com ("firebase" OR "firestore") filetype:json', severity: 'HIGH', provider: 'GCP' },
-  { q: 'site:storage.googleapis.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'GCP' },
-  { q: 'site:storage.googleapis.com ("build" OR "artifact") filetype:zip', severity: 'HIGH', provider: 'GCP' },
+  { q: 'site:storage.googleapis.com ("backup" OR "dump") filetype:sql', severity: 'HIGH', provider: 'GCP', conf: 84 },
+  { q: 'site:storage.googleapis.com ("export" OR "snapshot") filetype:csv', severity: 'HIGH', provider: 'GCP', conf: 82 },
+  { q: 'site:storage.googleapis.com ("firebase" OR "firestore") filetype:json', severity: 'HIGH', provider: 'GCP', conf: 86 },
+  { q: 'site:storage.googleapis.com filetype:log ("error" OR "exception")', severity: 'HIGH', provider: 'GCP', conf: 76 },
+  { q: 'site:storage.googleapis.com ("build" OR "artifact") filetype:zip', severity: 'HIGH', provider: 'GCP', conf: 79 },
 
   /* 🟡 MEDIUM — Tier 2 */
   // AWS docs
-  { q: 'site:s3.amazonaws.com ("confidential" OR "internal use only" OR "restricted") filetype:pdf', severity: 'MEDIUM', provider: 'AWS' },
-  { q: 'site:s3.amazonaws.com ("confidential" OR "internal") filetype:docx', severity: 'MEDIUM', provider: 'AWS' },
-  { q: 'site:s3.amazonaws.com ("internal report" OR "business report") filetype:pdf', severity: 'MEDIUM', provider: 'AWS' },
-  { q: 'site:s3.amazonaws.com ("export" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'AWS' },
-  { q: 'site:s3.amazonaws.com "cengage" ("internal" OR "restricted")', severity: 'MEDIUM', provider: 'AWS' },
+  { q: 'site:s3.amazonaws.com ("confidential" OR "internal use only" OR "restricted") filetype:pdf', severity: 'MEDIUM', provider: 'AWS', conf: 70 },
+  { q: 'site:s3.amazonaws.com ("confidential" OR "internal") filetype:docx', severity: 'MEDIUM', provider: 'AWS', conf: 68 },
+  { q: 'site:s3.amazonaws.com ("internal report" OR "business report") filetype:pdf', severity: 'MEDIUM', provider: 'AWS', conf: 62 },
+  { q: 'site:s3.amazonaws.com ("export" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'AWS', conf: 60 },
+  { q: 'site:s3.amazonaws.com "cengage" ("internal" OR "restricted")', severity: 'MEDIUM', provider: 'AWS', conf: 58 },
 
   // AZURE docs
-  { q: 'site:blob.core.windows.net ("internal" OR "confidential") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("private" OR "restricted") filetype:xlsx', severity: 'MEDIUM', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("report" OR "analysis") filetype:csv', severity: 'MEDIUM', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("audit" OR "compliance") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE' },
-  { q: 'site:blob.core.windows.net ("internal policy") filetype:docx', severity: 'MEDIUM', provider: 'AZURE' },
+  { q: 'site:blob.core.windows.net ("internal" OR "confidential") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE', conf: 72 },
+  { q: 'site:blob.core.windows.net ("private" OR "restricted") filetype:xlsx', severity: 'MEDIUM', provider: 'AZURE', conf: 70 },
+  { q: 'site:blob.core.windows.net ("report" OR "analysis") filetype:csv', severity: 'MEDIUM', provider: 'AZURE', conf: 66 },
+  { q: 'site:blob.core.windows.net ("audit" OR "compliance") filetype:pdf', severity: 'MEDIUM', provider: 'AZURE', conf: 74 },
+  { q: 'site:blob.core.windows.net ("internal policy") filetype:docx', severity: 'MEDIUM', provider: 'AZURE', conf: 62 },
 
   // GCP reports
-  { q: 'site:storage.googleapis.com ("analytics" OR "report") filetype:json', severity: 'MEDIUM', provider: 'GCP' },
-  { q: 'site:storage.googleapis.com ("bigquery" OR "bq") ("export" OR "result") filetype:csv', severity: 'MEDIUM', provider: 'GCP' },
-  { q: 'site:storage.googleapis.com ("dashboard" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'GCP' },
+  { q: 'site:storage.googleapis.com ("analytics" OR "report") filetype:json', severity: 'MEDIUM', provider: 'GCP', conf: 64 },
+  { q: 'site:storage.googleapis.com ("bigquery" OR "bq") ("export" OR "result") filetype:csv', severity: 'MEDIUM', provider: 'GCP', conf: 72 },
+  { q: 'site:storage.googleapis.com ("dashboard" OR "analysis") filetype:xlsx', severity: 'MEDIUM', provider: 'GCP', conf: 60 },
 
   /* 🟢 LOW — Recon support */
-  { q: 'intitle:"index of" backup', severity: 'LOW', provider: 'GLOBAL' },
-  { q: 'intitle:"index of" confidential', severity: 'LOW', provider: 'GLOBAL' },
-  { q: '"internal use only" filetype:pdf', severity: 'LOW', provider: 'GLOBAL' },
-  { q: '"do not distribute" filetype:pptx', severity: 'LOW', provider: 'GLOBAL' },
+  { q: 'intitle:"index of" backup', severity: 'LOW', provider: 'GLOBAL', conf: 40 },
+  { q: 'intitle:"index of" confidential', severity: 'LOW', provider: 'GLOBAL', conf: 42 },
+  { q: '"internal use only" filetype:pdf', severity: 'LOW', provider: 'GLOBAL', conf: 35 },
+  { q: '"do not distribute" filetype:pptx', severity: 'LOW', provider: 'GLOBAL', conf: 34 }
 ];
-
 
 /* =========================
-   TARGET DORKS (Auto-added if target filled)
-   No site: here -> we inject site:target automatically
+   TARGET DORKS (High-signal)
+   Will inject site:target + noise filters
    ========================= */
 const targetDorks = [
-  // 🔴 HIGH: Confidential docs & sensitive exports
-  { q: '("confidential" OR "internal use only" OR "restricted" OR "not for distribution") (filetype:pdf OR filetype:docx OR filetype:pptx)', severity: 'HIGH', provider: 'TARGET' },
-  { q: '("do not share" OR "not for public" OR "strictly private" OR "private") (filetype:xlsx OR filetype:csv)', severity: 'HIGH', provider: 'TARGET' },
+  // 🔴 HIGH: strict internal markers + sensitive filetypes
+  { q: '("internal use only" OR "not for public release" OR "do not distribute" OR "strictly private") (filetype:pdf OR filetype:docx OR filetype:pptx OR filetype:xlsx OR filetype:csv)', severity: 'HIGH', provider: 'TARGET', conf: 88 },
 
-  // 🔴 HIGH: Backups / dumps
-  { q: '("backup" OR "dump" OR "db_backup" OR "database dump") (filetype:sql OR filetype:bak OR filetype:zip)', severity: 'HIGH', provider: 'TARGET' },
+  // 🔴 HIGH: sensitive exports / spreadsheets (more accurate)
+  { q: '("confidential" OR "restricted") ("invoice" OR "payroll" OR "employee" OR "KYC" OR "bank" OR "salary") (filetype:xlsx OR filetype:csv OR filetype:pdf)', severity: 'HIGH', provider: 'TARGET', conf: 90 },
 
-  // 🔴 HIGH: Config-like leaks (still OSINT)
-  { q: '(filetype:env OR filetype:yml OR filetype:yaml OR filetype:json) ("config" OR "settings" OR "appsettings")', severity: 'HIGH', provider: 'TARGET' },
+  // 🔴 HIGH: backups/dumps
+  { q: '("backup" OR "dump" OR "db_backup" OR "database dump") (filetype:sql OR filetype:bak OR filetype:zip OR filetype:tar OR filetype:gz)', severity: 'HIGH', provider: 'TARGET', conf: 86 },
 
-  // 🟡 MEDIUM: Reports / exports
-  { q: '("export" OR "report" OR "dashboard") (filetype:xlsx OR filetype:csv OR filetype:pdf)', severity: 'MEDIUM', provider: 'TARGET' },
+  // 🔴 HIGH: config-like leaks (still OSINT)
+  { q: '(filetype:env OR filetype:yml OR filetype:yaml OR filetype:json) ("config" OR "settings" OR "appsettings")', severity: 'HIGH', provider: 'TARGET', conf: 84 },
 
-  // 🟡 MEDIUM: Logs / traces
-  { q: '(filetype:log OR filetype:txt) ("error" OR "exception" OR "stack trace")', severity: 'MEDIUM', provider: 'TARGET' },
+  // 🟡 MEDIUM: logs/stack traces
+  { q: '(filetype:log OR filetype:txt) ("stack trace" OR "fatal error" OR "unhandled exception" OR "exception")', severity: 'MEDIUM', provider: 'TARGET', conf: 72 },
 
-  // 🟡 MEDIUM: Directory listing
-  { q: 'intitle:"index of" ("backup" OR "dump" OR "private" OR "internal")', severity: 'MEDIUM', provider: 'TARGET' },
+  // 🟡 MEDIUM: directory listing strong
+  { q: 'intitle:"index of" ("backup" OR "dump" OR "logs" OR "config" OR "database")', severity: 'MEDIUM', provider: 'TARGET', conf: 70 }
 ];
 
+/* =========================
+   MISCONFIG / DEBUG DORKS (curated)
+   Report-worthy (P4/P3)
+   Uses target & noise filters
+   ========================= */
+const misconfigDorks = [
+  // 🔴 HIGH: .git/.svn exposure
+  { q: 'inurl:/.git/ (HEAD OR "index")', severity: 'HIGH', provider: 'MISCONFIG', conf: 92 },
+  { q: 'inurl:/.svn/ (entries OR wc.db)', severity: 'HIGH', provider: 'MISCONFIG', conf: 88 },
+
+  // 🔴 HIGH: backup archives
+  { q: '(filetype:zip OR filetype:tar OR filetype:gz OR filetype:rar) (backup OR dump OR "database")', severity: 'HIGH', provider: 'MISCONFIG', conf: 85 },
+
+  // 🟡 MEDIUM: phpinfo
+  { q: '(inurl:phpinfo OR intitle:"phpinfo()")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 70 },
+  { q: 'intitle:"phpinfo()" "PHP Version"', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 74 },
+
+  // 🟡 MEDIUM: stack traces/debug modes
+  { q: '("Stack trace:" OR "Fatal error:" OR "Unhandled exception")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 76 },
+  { q: '("Whoops, looks like something went wrong." OR "Ignition")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 78 },
+  { q: '("Whitelabel Error Page" OR "There was an unexpected error")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 66 },
+
+  // 🟡 MEDIUM: Swagger/OpenAPI exposures
+  { q: '(inurl:swagger OR inurl:"api-docs" OR inurl:openapi) (json OR yaml OR ui)', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 74 },
+
+  // 🟡 MEDIUM: public logs
+  { q: '(filetype:log OR ext:log) ("error" OR "exception" OR "trace")', severity: 'MEDIUM', provider: 'MISCONFIG', conf: 72 }
+];
 
 /* =========================
    SEARCH LOGIC
-   - If target is filled:
-     - target dorks get "site:target" auto injected
-     - cloud dorks remain same, but target keyword is appended for narrowing
+   - Target/Misconfig uses site:target + NOISE_FILTER
+   - Cloud keeps as-is (optionally narrowed by keyword)
    ========================= */
-function search(dork, mode) {
-  const t = document.getElementById('target').value.trim();
-  const hasSite = /site:\S+/i.test(dork);
+function buildFinalDork(d, target) {
+  const hasSite = /site:\S+/i.test(d);
 
+  // If no target, return as-is
+  if (!target) return d;
+
+  // force target scoping
+  let out = `site:${target} ${d} ${NOISE_FILTER}`;
+
+  // remove duplicate site: if accidentally included
+  if (hasSite) out = `${d} "${target}"`;
+
+  return out.trim();
+}
+
+function search(dork, mode) {
+  const target = document.getElementById('target').value.trim();
   let finalDork = dork;
 
-  if (t) {
-    if (mode === 'TARGET') {
-      // enforce site:target
-      finalDork = `site:${t} ${dork}`;
+  if (target) {
+    if (mode === 'TARGET' || mode === 'MISCONFIG') {
+      finalDork = buildFinalDork(dork, target);
     } else {
-      // keep cloud dorks intact, just narrow by keyword
-      finalDork = hasSite ? `${dork} "${t}"` : `site:${t} ${dork}`;
+      // cloud mode: keep cloud query intact, add target as keyword narrowing
+      finalDork = `${dork} "${target}"`;
     }
   }
 
   window.open('https://www.google.com/search?q=' + encodeURIComponent(finalDork), '_blank');
 }
 
-
 /* =========================
-   RENDER — GROUP BY SEVERITY (Option 2)
+   DATA MERGE
    ========================= */
 function getActiveDorks() {
-  const t = document.getElementById('target').value.trim();
+  const target = document.getElementById('target').value.trim();
   const merged = [...cloudDorks];
 
-  if (t) {
+  if (target) {
     merged.push(...targetDorks);
+    merged.push(...misconfigDorks);
+
     document.getElementById("footerCenter").innerHTML =
-      `Target mode: <span class="accent">ON</span> • Authorized & ethical testing only`;
+      `Target mode: <span class="accent">ON</span> • Noise filters: <span class="accent">ON</span> • Authorized & ethical testing only`;
   } else {
-    document.getElementById("footerCenter").innerText =
-      "Authorized & ethical testing only";
+    document.getElementById("footerCenter").innerText = "Authorized & ethical testing only";
   }
 
   return merged;
 }
 
+/* =========================
+   RENDER (Severity Grouping Option 2)
+   ========================= */
 function render() {
   const list = document.getElementById("dorkList");
   list.innerHTML = "";
 
   const data = getActiveDorks();
 
-  const order = ["HIGH","MEDIUM","LOW"];
-  order.forEach(sev => {
-    const h = document.createElement("div");
-    h.className = "sevHeader";
-    h.innerHTML =
-      sev === "HIGH" ? "🔴 <b>HIGH Severity</b> (Tier-3 / High-impact exposure)" :
-      sev === "MEDIUM" ? "🟡 <b>MEDIUM Severity</b> (Tier-2 / Sensitive content)" :
-      "🟢 <b>LOW Severity</b> (Recon / Supporting)";
+  const sections = [
+    { sev: "HIGH", label: "🔴 HIGH Severity", meta: "Tier-3 / High-impact exposure" },
+    { sev: "MEDIUM", label: "🟡 MEDIUM Severity", meta: "Tier-2 / Sensitive + Misconfig" },
+    { sev: "LOW", label: "🟢 LOW Severity", meta: "Recon / Supporting" }
+  ];
 
-    list.appendChild(h);
+  sections.forEach(sec => {
+    const header = document.createElement("div");
+    header.className = "sevHeader";
+    header.innerHTML = `
+      <div><b>${sec.label}</b></div>
+      <div class="meta">${sec.meta}</div>
+    `;
+    list.appendChild(header);
 
-    const items = data.filter(d => d.severity === sev);
+    const items = data.filter(x => x.severity === sec.sev);
     if (items.length === 0) return;
 
     items.forEach(d => {
       const b = document.createElement("button");
+      const sevClass = sec.sev.toLowerCase();
 
-      const sevClass = sev.toLowerCase();
+      // Mode determines how we build final query
+      const mode =
+        d.provider === "TARGET" ? "TARGET" :
+        d.provider === "MISCONFIG" ? "MISCONFIG" :
+        "CLOUD";
+
+      const conf = typeof d.conf === "number" ? d.conf : 60;
+
       b.innerHTML =
-        `[${d.provider}] ${d.q} <span class="tag ${sevClass}">[${sev}]</span>`;
-
-      // determine mode (TARGET dorks should be forced into site:target)
-      const mode = (d.provider === "TARGET") ? "TARGET" : "CLOUD";
+        `[${d.provider}] [CONF ${conf}] ${d.q} <span class="tag ${sevClass}">[${sec.sev}]</span>`;
 
       b.onclick = () => search(d.q, mode);
       b.oncontextmenu = e => {
@@ -399,8 +498,8 @@ function render() {
   });
 }
 
+/* Live update on target input */
 document.getElementById("target").addEventListener("input", () => {
-  // light debounce feel
   clearTimeout(window.__rT);
   window.__rT = setTimeout(render, 150);
 });
