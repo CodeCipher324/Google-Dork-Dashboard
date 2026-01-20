@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dork Matrix v4.2 | CodeCipher</title>
+<title>Dork Matrix v4.3 | CodeCipher</title>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet" />
 
 <style>
@@ -69,7 +69,7 @@ h3{
   text-shadow:0 0 10px rgba(0,255,0,0.22);
 }
 
-input[type="text"], textarea{
+input[type="text"]{
   width:100%;
   padding:12px;
   background:rgba(0,0,0,0.88);
@@ -79,14 +79,7 @@ input[type="text"], textarea{
   font-weight:700;
 }
 
-textarea{
-  min-height:120px;
-  resize:vertical;
-  font-weight:600;
-  line-height:1.5;
-}
-
-input[type="text"]:focus, textarea:focus{
+input[type="text"]:focus{
   outline:none;
   box-shadow:0 0 12px rgba(0,255,0,0.8);
 }
@@ -223,7 +216,7 @@ input:checked + .slider:before{
 }
 .modeGrid2{
   display:grid;
-  grid-template-columns:1fr;
+  grid-template-columns:1fr 1fr;
   gap:10px;
   margin-top:10px;
 }
@@ -247,71 +240,11 @@ input:checked + .slider:before{
   box-shadow:0 0 18px rgba(0,255,0,0.25);
 }
 
-/* Checklist */
-.checkGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:10px;
-}
-.checkItem{
-  border:1px solid rgba(0,255,0,0.25);
-  background:rgba(0,0,0,0.35);
-  border-radius:14px;
-  padding:10px;
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-}
-.checkItem input{
-  margin-top:2px;
-  transform:scale(1.15);
-}
-.checkLabel{
-  font-weight:800;
-  font-size:12.5px;
-  line-height:1.35;
-}
-.scoreBox{
-  margin-top:12px;
-  padding:10px 12px;
-  border-radius:14px;
-  border:1px solid rgba(0,255,0,0.25);
-  background:rgba(0,0,0,0.35);
-}
-.scoreRow{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  font-weight:900;
-}
-.pill{
-  display:inline-block;
-  padding:2px 10px;
-  border-radius:999px;
-  border:1px solid rgba(0,255,0,0.35);
-  background:rgba(0,0,0,0.4);
-  font-size:12px;
-}
-
-/* Analyzer results */
-.kline{
-  padding:8px 10px;
-  border-radius:12px;
-  border:1px solid rgba(0,255,0,0.22);
-  background:rgba(0,0,0,0.35);
-  margin-top:8px;
-}
-.kline b{ color:#00ffaa; }
-.kmuted{ color:#99ff99; opacity:0.9; font-size:12px; }
-
 /* Mobile */
 @media (max-width:768px){
   .container{ flex-direction:column; height:auto; }
   .left, .right{ width:100%; border-right:none; }
   footer{ flex-direction:column; text-align:center; gap:4px; }
-  .checkGrid{ grid-template-columns:1fr; }
 }
 </style>
 </head>
@@ -320,7 +253,7 @@ input:checked + .slider:before{
 <canvas id="matrix"></canvas>
 
 <div id="ui">
-  <h1>☠ DORK MATRIX v4.2 ☠</h1>
+  <h1>☠ DORK MATRIX v4.3 ☠</h1>
 
   <div class="container">
     <div class="left">
@@ -339,8 +272,10 @@ input:checked + .slider:before{
           <div id="btnHunt" class="modeBtn active">HUNT</div>
           <div id="btnRecon" class="modeBtn">RECON</div>
         </div>
+
         <div class="modeGrid2">
-          <div id="btnScope" class="modeBtn">SCOPE / POLICY</div>
+          <div id="btnLogic" class="modeBtn">LOGIC HUNT</div>
+          <div id="btnScope" class="modeBtn">SCOPE</div>
         </div>
 
         <!-- NOISE -->
@@ -353,79 +288,30 @@ input:checked + .slider:before{
             </label>
           </div>
           <div class="small" style="margin-top:8px;">
-            ON = reduce trash folders<br/>
+            ON = reduce trash results<br/>
             OFF = maximum results (if results disappear)
           </div>
         </div>
 
         <div class="small">
-          ✅ HUNT = dorks (cloud + target + misconfig)<br/>
-          ✅ RECON = quick discovery buttons<br/>
-          ✅ SCOPE = VDP / security.txt / bug bounty finder<br/>
-          💡 Right-click any button → copy
+          ✅ HUNT = leaks/misconfigs dorks<br/>
+          ✅ RECON = subdomains, JS, API, GitHub, Wayback<br/>
+          ✅ LOGIC HUNT = IDOR/open redirect/API logic bug discovery<br/>
+          ✅ SCOPE = security policy + reporting contacts<br/>
+          💡 Right-click buttons → copy
         </div>
       </div>
 
       <div style="height:12px;"></div>
 
-      <!-- TOP UPGRADE #2 -->
       <div class="panel">
-        <h3 style="margin-top:0;">🧪 Leak Validation Checklist</h3>
-
-        <div class="checkGrid">
-          <label class="checkItem">
-            <input type="checkbox" class="riskChk" data-points="35" />
-            <div class="checkLabel">PII present<br><span class="kmuted">name/email/phone/address/ids</span></div>
-          </label>
-
-          <label class="checkItem">
-            <input type="checkbox" class="riskChk" data-points="50" />
-            <div class="checkLabel">Secrets / Tokens<br><span class="kmuted">api key, bearer, creds</span></div>
-          </label>
-
-          <label class="checkItem">
-            <input type="checkbox" class="riskChk" data-points="25" />
-            <div class="checkLabel">Internal-only markers<br><span class="kmuted">not for public/internal use</span></div>
-          </label>
-
-          <label class="checkItem">
-            <input type="checkbox" class="riskChk" data-points="20" />
-            <div class="checkLabel">No auth required<br><span class="kmuted">public access</span></div>
-          </label>
-
-          <label class="checkItem">
-            <input type="checkbox" class="riskChk" data-points="15" />
-            <div class="checkLabel">Indexed by Google<br><span class="kmuted">searchable / cached</span></div>
-          </label>
-
-          <label class="checkItem">
-            <input type="checkbox" class="riskChk" data-points="30" />
-            <div class="checkLabel">Large dataset<br><span class="kmuted">many rows/files</span></div>
-          </label>
+        <h3 style="margin-top:0;">⚡ Mobile Plan</h3>
+        <div class="small">
+          1) Run SCOPE (know where to report)<br/>
+          2) Run RECON (find endpoints)<br/>
+          3) Run LOGIC HUNT (find bug patterns)<br/>
+          4) Use HUNT for leaks & exposures<br/>
         </div>
-
-        <div class="scoreBox">
-          <div class="scoreRow">
-            <div>Risk Score</div>
-            <div>
-              <span class="pill" id="riskScore">0</span>
-              <span class="pill accent" id="riskLevel">P4-ish</span>
-            </div>
-          </div>
-          <div class="small" id="riskHint" style="margin-top:8px;">
-            Tick what applies → you’ll get a quick severity guess.
-          </div>
-        </div>
-      </div>
-
-      <div style="height:12px;"></div>
-
-      <!-- TOP UPGRADE #3 -->
-      <div class="panel">
-        <h3 style="margin-top:0;">🔎 Keyword Sweep Analyzer</h3>
-        <textarea id="analyzerInput" placeholder="Paste text snippet / doc lines / URL output here..."></textarea>
-        <button id="btnAnalyze">Analyze Snippet</button>
-        <div id="analyzerOut" class="small"></div>
       </div>
     </div>
   </div>
@@ -443,6 +329,7 @@ input:checked + .slider:before{
    ========================= */
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
+
 function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
@@ -471,7 +358,7 @@ setInterval(drawMatrix,50);
 /* =========================
    STATE
    ========================= */
-let MODE="HUNT"; // HUNT | RECON | SCOPE
+let MODE="HUNT"; // HUNT | RECON | LOGIC | SCOPE
 
 /* =========================
    NOISE FILTER toggle
@@ -490,7 +377,7 @@ function updateNoiseUI(){
 }
 
 /* =========================
-   DORK DATA
+   HUNT MODE DORKS
    ========================= */
 const cloudDorks = [
   { q:'site:s3.amazonaws.com ("backup" OR "db_backup" OR "database dump") filetype:sql', severity:'HIGH', provider:'AWS', conf:85 },
@@ -503,7 +390,6 @@ const cloudDorks = [
   { q:'intitle:"index of" backup', severity:'LOW', provider:'GLOBAL', conf:40 }
 ];
 
-/* Target dorks — no filetype restrictions */
 const targetDorks = [
   { q:'("internal use only" OR "not for public release" OR "do not distribute" OR "strictly private")', severity:'HIGH', provider:'TARGET', conf:88 },
   { q:'("confidential" OR "restricted") ("invoice" OR "payroll" OR "employee" OR "KYC" OR "bank" OR "salary")', severity:'HIGH', provider:'TARGET', conf:92 },
@@ -517,14 +403,13 @@ const targetDorks = [
 const misconfigDorks = [
   { q:'inurl:/.git/ (HEAD OR "index")', severity:'HIGH', provider:'MISCONFIG', conf:92 },
   { q:'(filetype:zip OR filetype:tar OR filetype:gz OR filetype:rar) (backup OR dump OR "database")', severity:'HIGH', provider:'MISCONFIG', conf:85 },
-
   { q:'(inurl:phpinfo OR intitle:"phpinfo()")', severity:'MEDIUM', provider:'MISCONFIG', conf:70 },
   { q:'("Whoops, looks like something went wrong." OR "Ignition")', severity:'MEDIUM', provider:'MISCONFIG', conf:78 },
   { q:'(inurl:swagger OR inurl:"api-docs" OR inurl:openapi) (json OR yaml OR ui)', severity:'MEDIUM', provider:'MISCONFIG', conf:74 }
 ];
 
 /* =========================
-   RECON items
+   RECON ITEMS
    ========================= */
 function reconItems(target){
   if(!target){
@@ -551,25 +436,53 @@ function reconItems(target){
 }
 
 /* =========================
-   TOP UPGRADE #1: SCOPE / POLICY Finder
+   SCOPE ITEMS
    ========================= */
 function scopeItems(target){
   if(!target){
-    return [{ label:"⚠ Enter target for Scope/Policy Mode", q:'site:example.com security.txt', type:"SEARCH" }];
+    return [{ label:"⚠ Enter target for Scope Mode", q:'site:example.com security.txt', type:"SEARCH" }];
   }
   const t=target.trim();
   return [
     { label:"🧾 security.txt (.well-known)", open:`https://${t}/.well-known/security.txt`, type:"OPEN" },
     { label:"🧾 security.txt (root)", open:`https://${t}/security.txt`, type:"OPEN" },
+    { label:"🛡 VDP / Disclosure Policy", q:`site:${t} ("vulnerability disclosure" OR "responsible disclosure" OR VDP OR "security report")`, type:"SEARCH" },
+    { label:"🏆 Bug Bounty finder", q:`site:${t} ("bug bounty" OR bugcrowd OR hackerone OR intigriti OR "security bounty")`, type:"SEARCH" },
+    { label:"📩 Security contact email", q:`site:${t} (security@ OR "security contact" OR "report a vulnerability")`, type:"SEARCH" }
+  ];
+}
 
-    { label:"🛡 VDP / Responsible Disclosure", q:`site:${t} ("vulnerability disclosure" OR "responsible disclosure" OR VDP OR "security report")`, type:"SEARCH" },
-    { label:"🏆 Bug Bounty (platform finder)", q:`site:${t} ("bug bounty" OR bugcrowd OR hackerone OR intigriti OR "security bounty")`, type:"SEARCH" },
+/* =========================
+   LOGIC HUNT ITEMS (NEW)
+   ========================= */
+function logicHuntItems(target){
+  if(!target){
+    return [{ label:"⚠ Enter target for Logic Hunt Mode", q:'site:example.com inurl:id', type:"SEARCH" }];
+  }
+  const t = target.trim();
+  const noise = getNoiseFilter();
 
-    { label:"📩 Security contact email", q:`site:${t} (security@ OR "security contact" OR "report a vulnerability")`, type:"SEARCH" },
-    { label:"🔐 PGP key", q:`site:${t} (PGP OR "public key" OR "pgp key")`, type:"SEARCH" },
+  return [
+    // IDOR / BOLA patterns
+    { label:"🧠 IDOR patterns (id= / user= / account=)", q:`site:${t} (inurl:id= OR inurl:user= OR inurl:account= OR inurl:uid= OR inurl:doc= OR inurl:invoice= OR inurl:order= OR inurl:profile=) ${noise}`, type:"SEARCH" },
+    { label:"🧠 Numeric IDs in paths (/user/123)", q:`site:${t} (inurl:/user/ OR inurl:/users/ OR inurl:/account/ OR inurl:/invoice/ OR inurl:/order/ OR inurl:/download/) ${noise}`, type:"SEARCH" },
 
-    { label:"✅ In-scope assets hints", q:`site:${t} (scope OR "in scope" OR "out of scope") ("bug bounty" OR "security")`, type:"SEARCH" },
-    { label:"🌍 External official scope pages", q:`("${t}" AND (bugcrowd OR hackerone OR intigriti) AND scope)`, type:"SEARCH" }
+    // Open Redirect
+    { label:"➡️ Open Redirect params (next, url, return)", q:`site:${t} (inurl:next= OR inurl:url= OR inurl:return= OR inurl:redirect= OR inurl:continue= OR inurl:dest= OR inurl:callback=) ${noise}`, type:"SEARCH" },
+
+    // API Logic / BOLA discovery
+    { label:"🛰 API endpoints", q:`site:${t} (inurl:api OR inurl:v1 OR inurl:v2 OR inurl:graphql) ${noise}`, type:"SEARCH" },
+    { label:"📘 Swagger/OpenAPI pages", q:`site:${t} (inurl:swagger OR inurl:openapi OR inurl:api-docs) ${noise}`, type:"SEARCH" },
+    { label:"📦 Postman collections / API docs", q:`site:${t} ("postman" OR "collection" OR "api docs" OR "developer portal") ${noise}`, type:"SEARCH" },
+
+    // File download / export endpoints
+    { label:"⬇️ Export/Download endpoints", q:`site:${t} (inurl:export OR inurl:download OR inurl:report OR inurl:invoice OR inurl:billing) ${noise}`, type:"SEARCH" },
+
+    // Admin/staff portals (access control targets)
+    { label:"🛡 Admin/Staff portals (good for auth bugs)", q:`site:${t} (inurl:admin OR inurl:staff OR inurl:internal OR inurl:portal OR inurl:dashboard) ${noise}`, type:"SEARCH" },
+
+    // Auth flows (logic bugs possible)
+    { label:"🔐 Auth flows (reset/callback)", q:`site:${t} (inurl:reset OR inurl:forgot OR inurl:recovery OR inurl:oauth OR inurl:sso OR inurl:callback) ${noise}`, type:"SEARCH" }
   ];
 }
 
@@ -599,13 +512,13 @@ function search(dork, mode){
 }
 
 /* =========================
-   Active list by mode
+   Active items by mode
    ========================= */
 function getActiveItems(){
   const target=document.getElementById('target').value.trim();
-
   if(MODE==="RECON") return reconItems(target);
   if(MODE==="SCOPE") return scopeItems(target);
+  if(MODE==="LOGIC") return logicHuntItems(target);
 
   // HUNT
   const merged=[...cloudDorks];
@@ -623,23 +536,20 @@ function render(){
   const target=document.getElementById('target').value.trim();
   const data=getActiveItems();
 
-  if(MODE==="RECON"){
-    document.getElementById("footerCenter").innerHTML=
-      `Mode: <span class="accent">RECON</span> • Target: <span class="accent">${target? "SET":"EMPTY"}</span>`;
-  } else if(MODE==="SCOPE"){
-    document.getElementById("footerCenter").innerHTML=
-      `Mode: <span class="accent">SCOPE</span> • Target: <span class="accent">${target? "SET":"EMPTY"}</span>`;
-  } else {
-    document.getElementById("footerCenter").innerHTML=
-      `Mode: <span class="accent">HUNT</span> • Target: <span class="accent">${target? "ON":"OFF"}</span> • Noise: <span class="accent">${document.getElementById("noiseToggle").checked? "ON":"OFF"}</span>`;
-  }
+  // Footer center status
+  const footer = document.getElementById("footerCenter");
+  footer.innerHTML = `Mode: <span class="accent">${MODE}</span> • Target: <span class="accent">${target? "SET":"EMPTY"}</span> • Noise: <span class="accent">${document.getElementById("noiseToggle").checked? "ON":"OFF"}</span>`;
 
-  if(MODE==="RECON" || MODE==="SCOPE"){
+  // RECON / LOGIC / SCOPE simple render
+  if(MODE==="RECON" || MODE==="SCOPE" || MODE==="LOGIC"){
     const header=document.createElement("div");
     header.className="sevHeader";
-    header.innerHTML = MODE==="RECON"
-      ? `<div><b>🛰 RECON MODE</b></div><div class="meta">Wayback • GitHub • JS • robots/sitemap • Subdomains</div>`
-      : `<div><b>🛡 SCOPE / POLICY MODE</b></div><div class="meta">security.txt • VDP • bug bounty • contacts</div>`;
+    header.innerHTML =
+      MODE==="RECON"
+        ? `<div><b>🛰 RECON MODE</b></div><div class="meta">Wayback • GitHub • JS • APIs • Subdomains</div>`
+        : MODE==="LOGIC"
+          ? `<div><b>🧠 LOGIC HUNT MODE</b></div><div class="meta">IDOR • Redirect • APIs • Auth flows • Exports</div>`
+          : `<div><b>🛡 SCOPE MODE</b></div><div class="meta">security.txt • policy • contacts</div>`;
     list.appendChild(header);
 
     data.forEach(item=>{
@@ -677,6 +587,7 @@ function render(){
     items.forEach(d=>{
       const b=document.createElement("button");
       const sevClass=sec.sev.toLowerCase();
+
       const mode =
         d.provider==="TARGET" ? "TARGET" :
         d.provider==="MISCONFIG" ? "MISCONFIG" :
@@ -694,22 +605,25 @@ function render(){
 }
 
 /* =========================
-   UI Mode events
+   Mode events
    ========================= */
 const btnHunt=document.getElementById("btnHunt");
 const btnRecon=document.getElementById("btnRecon");
+const btnLogic=document.getElementById("btnLogic");
 const btnScope=document.getElementById("btnScope");
 
 function setMode(m){
   MODE=m;
   btnHunt.classList.toggle("active", m==="HUNT");
   btnRecon.classList.toggle("active", m==="RECON");
+  btnLogic.classList.toggle("active", m==="LOGIC");
   btnScope.classList.toggle("active", m==="SCOPE");
   render();
 }
 
 btnHunt.addEventListener("click", ()=>setMode("HUNT"));
 btnRecon.addEventListener("click", ()=>setMode("RECON"));
+btnLogic.addEventListener("click", ()=>setMode("LOGIC"));
 btnScope.addEventListener("click", ()=>setMode("SCOPE"));
 
 document.getElementById("target").addEventListener("input", ()=>{
@@ -722,132 +636,6 @@ document.getElementById("noiseToggle").addEventListener("change", ()=>{
   render();
 });
 
-/* =========================
-   TOP UPGRADE #2: Risk scoring
-   ========================= */
-function updateRiskScore(){
-  const checks = document.querySelectorAll(".riskChk");
-  let score = 0;
-  checks.forEach(c=>{
-    if(c.checked) score += parseInt(c.dataset.points || "0", 10);
-  });
-
-  document.getElementById("riskScore").textContent = score;
-
-  let level = "P4-ish";
-  let hint = "Low severity / informational likely. Still report if in scope.";
-
-  if(score >= 90){
-    level = "P2-ish";
-    hint = "High impact likely (PII/secrets/large dataset). Strong report.";
-  } else if(score >= 60){
-    level = "P3-ish";
-    hint = "Significant exposure likely. Write a clean report + impact.";
-  } else if(score >= 30){
-    level = "P4-ish";
-    hint = "Info disclosure / misconfig. Reportable on many programs.";
-  }
-
-  document.getElementById("riskLevel").textContent = level;
-  document.getElementById("riskHint").textContent = hint;
-}
-
-document.querySelectorAll(".riskChk").forEach(c=>{
-  c.addEventListener("change", updateRiskScore);
-});
-updateRiskScore();
-
-/* =========================
-   TOP UPGRADE #3: Keyword Sweep Analyzer
-   ========================= */
-const KEY_SETS = [
-  {
-    name: "Secrets / Tokens",
-    keywords: ["api_key","apikey","api key","token","bearer","authorization","secret","client_secret","accesskey","private key","BEGIN PRIVATE KEY","x-api-key","sessionid","jwt"],
-    weight: 3
-  },
-  {
-    name: "PII Indicators",
-    keywords: ["aadhaar","aadhar","pan","passport","ssn","national id","dob","date of birth","address","phone","mobile","email","customer","account number","bank","iban","ifsc"],
-    weight: 2
-  },
-  {
-    name: "Internal Markers",
-    keywords: ["internal use only","not for public","do not distribute","strictly private","confidential","restricted","proprietary","staff only","admin only"],
-    weight: 2
-  },
-  {
-    name: "Cloud / Storage Trails",
-    keywords: ["s3.amazonaws.com","blob.core.windows.net","storage.googleapis.com","amazonaws.com","azure","gcp","firebase","bucket","container"],
-    weight: 1
-  },
-  {
-    name: "Debug / Errors",
-    keywords: ["stack trace","fatal error","unhandled exception","debug","whoops","ignition","whitelabel error page","traceback"],
-    weight: 1
-  }
-];
-
-function analyzeSnippet(){
-  const text = (document.getElementById("analyzerInput").value || "").toLowerCase().trim();
-  const out = document.getElementById("analyzerOut");
-  out.innerHTML = "";
-
-  if(!text){
-    out.innerHTML = `<div class="kline"><b>No input</b> — paste a snippet and hit Analyze.</div>`;
-    return;
-  }
-
-  let totalScore = 0;
-  let hits = [];
-
-  KEY_SETS.forEach(set=>{
-    const found = [];
-    set.keywords.forEach(k=>{
-      if(text.includes(k.toLowerCase())) found.push(k);
-    });
-    if(found.length){
-      totalScore += set.weight * found.length;
-      hits.push({ name:set.name, found, weight:set.weight });
-    }
-  });
-
-  let verdict = "Low signal";
-  let verdictHint = "Probably harmless/public, but still check context.";
-
-  if(totalScore >= 10){
-    verdict = "HIGH signal";
-    verdictHint = "Very likely reportable — looks like sensitive data / secrets / internal.";
-  } else if(totalScore >= 5){
-    verdict = "MEDIUM signal";
-    verdictHint = "Looks interesting — validate access + identify data sensitivity.";
-  }
-
-  out.innerHTML += `
-    <div class="kline">
-      <b>Verdict:</b> ${verdict} <span class="pill accent">Score ${totalScore}</span><br/>
-      <span class="kmuted">${verdictHint}</span>
-    </div>
-  `;
-
-  if(!hits.length){
-    out.innerHTML += `<div class="kline"><b>No keywords matched</b><br/><span class="kmuted">Try pasting more text or different section.</span></div>`;
-    return;
-  }
-
-  hits.forEach(h=>{
-    out.innerHTML += `
-      <div class="kline">
-        <b>${h.name}</b> <span class="pill">x${h.found.length}</span><br/>
-        <span class="kmuted">${h.found.slice(0,12).join(", ")}${h.found.length>12 ? ", ..." : ""}</span>
-      </div>
-    `;
-  });
-}
-
-document.getElementById("btnAnalyze").addEventListener("click", analyzeSnippet);
-
-/* init */
 updateNoiseUI();
 render();
 </script>
