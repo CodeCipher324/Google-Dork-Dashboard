@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dork Matrix v4.3 | CodeCipher</title>
+<title>Dork Matrix v4.4 | CodeCipher</title>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet" />
 
 <style>
@@ -253,7 +253,7 @@ input:checked + .slider:before{
 <canvas id="matrix"></canvas>
 
 <div id="ui">
-  <h1>☠ DORK MATRIX v4.3 ☠</h1>
+  <h1>☠ DORK MATRIX v4.4 ☠</h1>
 
   <div class="container">
     <div class="left">
@@ -274,8 +274,8 @@ input:checked + .slider:before{
         </div>
 
         <div class="modeGrid2">
-          <div id="btnLogic" class="modeBtn">LOGIC HUNT</div>
           <div id="btnScope" class="modeBtn">SCOPE</div>
+          <div id="btnMulti" class="modeBtn">MULTI-SOURCE</div>
         </div>
 
         <!-- NOISE -->
@@ -296,8 +296,8 @@ input:checked + .slider:before{
         <div class="small">
           ✅ HUNT = leaks/misconfigs dorks<br/>
           ✅ RECON = subdomains, JS, API, GitHub, Wayback<br/>
-          ✅ LOGIC HUNT = IDOR/open redirect/API logic bug discovery<br/>
           ✅ SCOPE = security policy + reporting contacts<br/>
+          ✅ MULTI-SOURCE = recon from multiple internet sources<br/>
           💡 Right-click buttons → copy
         </div>
       </div>
@@ -308,9 +308,9 @@ input:checked + .slider:before{
         <h3 style="margin-top:0;">⚡ Mobile Plan</h3>
         <div class="small">
           1) Run SCOPE (know where to report)<br/>
-          2) Run RECON (find endpoints)<br/>
-          3) Run LOGIC HUNT (find bug patterns)<br/>
-          4) Use HUNT for leaks & exposures<br/>
+          2) Run MULTI-SOURCE (get assets/endpoints)<br/>
+          3) Run RECON (Wayback/JS/APIs)<br/>
+          4) Run HUNT (leaks + exposures)<br/>
         </div>
       </div>
     </div>
@@ -358,7 +358,7 @@ setInterval(drawMatrix,50);
 /* =========================
    STATE
    ========================= */
-let MODE="HUNT"; // HUNT | RECON | LOGIC | SCOPE
+let MODE="HUNT"; // HUNT | RECON | SCOPE | MULTI
 
 /* =========================
    NOISE FILTER toggle
@@ -446,48 +446,43 @@ function scopeItems(target){
   return [
     { label:"🧾 security.txt (.well-known)", open:`https://${t}/.well-known/security.txt`, type:"OPEN" },
     { label:"🧾 security.txt (root)", open:`https://${t}/security.txt`, type:"OPEN" },
-    { label:"🛡 VDP / Disclosure Policy", q:`site:${t} ("vulnerability disclosure" OR "responsible disclosure" OR VDP OR "security report")`, type:"SEARCH" },
+    { label:"🛡 Disclosure Policy", q:`site:${t} ("vulnerability disclosure" OR "responsible disclosure" OR VDP OR "security report")`, type:"SEARCH" },
     { label:"🏆 Bug Bounty finder", q:`site:${t} ("bug bounty" OR bugcrowd OR hackerone OR intigriti OR "security bounty")`, type:"SEARCH" },
     { label:"📩 Security contact email", q:`site:${t} (security@ OR "security contact" OR "report a vulnerability")`, type:"SEARCH" }
   ];
 }
 
 /* =========================
-   LOGIC HUNT ITEMS (NEW)
+   MULTI-SOURCE ITEMS
    ========================= */
-function logicHuntItems(target){
+function multiSourceItems(target){
   if(!target){
-    return [{ label:"⚠ Enter target for Logic Hunt Mode", q:'site:example.com inurl:id', type:"SEARCH" }];
+    return [{ label:"⚠ Enter target for Multi-Source Mode", q:'example.com', type:"INFO" }];
   }
   const t = target.trim();
-  const noise = getNoiseFilter();
+
+  const waybackCDX = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(t)}/*&output=text&fl=original&collapse=urlkey`;
+  const crt = `https://crt.sh/?q=%25.${encodeURIComponent(t)}`;
+  const urlscan = `https://urlscan.io/search/#domain:${encodeURIComponent(t)}`;
+  const publicwww = `https://publicwww.com/websites/${encodeURIComponent(t)}/`;
 
   return [
-    // IDOR / BOLA patterns
-    { label:"🧠 IDOR patterns (id= / user= / account=)", q:`site:${t} (inurl:id= OR inurl:user= OR inurl:account= OR inurl:uid= OR inurl:doc= OR inurl:invoice= OR inurl:order= OR inurl:profile=) ${noise}`, type:"SEARCH" },
-    { label:"🧠 Numeric IDs in paths (/user/123)", q:`site:${t} (inurl:/user/ OR inurl:/users/ OR inurl:/account/ OR inurl:/invoice/ OR inurl:/order/ OR inurl:/download/) ${noise}`, type:"SEARCH" },
+    { label:"🔎 Google (site:target)", open:`https://www.google.com/search?q=${encodeURIComponent("site:"+t)}`, type:"OPEN" },
+    { label:"🔎 Bing (site:target)", open:`https://www.bing.com/search?q=${encodeURIComponent("site:"+t)}`, type:"OPEN" },
+    { label:"🔎 DuckDuckGo (site:target)", open:`https://duckduckgo.com/?q=${encodeURIComponent("site:"+t)}`, type:"OPEN" },
 
-    // Open Redirect
-    { label:"➡️ Open Redirect params (next, url, return)", q:`site:${t} (inurl:next= OR inurl:url= OR inurl:return= OR inurl:redirect= OR inurl:continue= OR inurl:dest= OR inurl:callback=) ${noise}`, type:"SEARCH" },
+    { label:"🐙 GitHub Leaks", open:`https://www.google.com/search?q=${encodeURIComponent('site:github.com "'+t+'" (api_key OR apikey OR token OR secret OR password OR AWS_SECRET_ACCESS_KEY)')}`, type:"OPEN" },
+    { label:"🦊 GitLab Leaks", open:`https://www.google.com/search?q=${encodeURIComponent('site:gitlab.com "'+t+'" (api_key OR apikey OR token OR secret OR password)')}`, type:"OPEN" },
 
-    // API Logic / BOLA discovery
-    { label:"🛰 API endpoints", q:`site:${t} (inurl:api OR inurl:v1 OR inurl:v2 OR inurl:graphql) ${noise}`, type:"SEARCH" },
-    { label:"📘 Swagger/OpenAPI pages", q:`site:${t} (inurl:swagger OR inurl:openapi OR inurl:api-docs) ${noise}`, type:"SEARCH" },
-    { label:"📦 Postman collections / API docs", q:`site:${t} ("postman" OR "collection" OR "api docs" OR "developer portal") ${noise}`, type:"SEARCH" },
-
-    // File download / export endpoints
-    { label:"⬇️ Export/Download endpoints", q:`site:${t} (inurl:export OR inurl:download OR inurl:report OR inurl:invoice OR inurl:billing) ${noise}`, type:"SEARCH" },
-
-    // Admin/staff portals (access control targets)
-    { label:"🛡 Admin/Staff portals (good for auth bugs)", q:`site:${t} (inurl:admin OR inurl:staff OR inurl:internal OR inurl:portal OR inurl:dashboard) ${noise}`, type:"SEARCH" },
-
-    // Auth flows (logic bugs possible)
-    { label:"🔐 Auth flows (reset/callback)", q:`site:${t} (inurl:reset OR inurl:forgot OR inurl:recovery OR inurl:oauth OR inurl:sso OR inurl:callback) ${noise}`, type:"SEARCH" }
+    { label:"🕒 Wayback CDX URL List", open:waybackCDX, type:"OPEN" },
+    { label:"📜 crt.sh Subdomains", open:crt, type:"OPEN" },
+    { label:"📡 urlscan.io domain search", open:urlscan, type:"OPEN" },
+    { label:"🧩 PublicWWW search", open:publicwww, type:"OPEN" }
   ];
 }
 
 /* =========================
-   Query builder
+   Query builder (HUNT)
    ========================= */
 function buildFinalDork(dork, target){
   const noise=getNoiseFilter();
@@ -518,7 +513,7 @@ function getActiveItems(){
   const target=document.getElementById('target').value.trim();
   if(MODE==="RECON") return reconItems(target);
   if(MODE==="SCOPE") return scopeItems(target);
-  if(MODE==="LOGIC") return logicHuntItems(target);
+  if(MODE==="MULTI") return multiSourceItems(target);
 
   // HUNT
   const merged=[...cloudDorks];
@@ -536,23 +531,36 @@ function render(){
   const target=document.getElementById('target').value.trim();
   const data=getActiveItems();
 
-  // Footer center status
+  // footer status
   const footer = document.getElementById("footerCenter");
   footer.innerHTML = `Mode: <span class="accent">${MODE}</span> • Target: <span class="accent">${target? "SET":"EMPTY"}</span> • Noise: <span class="accent">${document.getElementById("noiseToggle").checked? "ON":"OFF"}</span>`;
 
-  // RECON / LOGIC / SCOPE simple render
-  if(MODE==="RECON" || MODE==="SCOPE" || MODE==="LOGIC"){
+  // RECON / SCOPE / MULTI mode render
+  if(MODE==="RECON" || MODE==="SCOPE" || MODE==="MULTI"){
     const header=document.createElement("div");
     header.className="sevHeader";
     header.innerHTML =
       MODE==="RECON"
         ? `<div><b>🛰 RECON MODE</b></div><div class="meta">Wayback • GitHub • JS • APIs • Subdomains</div>`
-        : MODE==="LOGIC"
-          ? `<div><b>🧠 LOGIC HUNT MODE</b></div><div class="meta">IDOR • Redirect • APIs • Auth flows • Exports</div>`
-          : `<div><b>🛡 SCOPE MODE</b></div><div class="meta">security.txt • policy • contacts</div>`;
+        : MODE==="SCOPE"
+          ? `<div><b>🛡 SCOPE MODE</b></div><div class="meta">security.txt • policy • contacts</div>`
+          : `<div><b>🌍 MULTI-SOURCE MODE</b></div><div class="meta">Google • Bing • GitHub • Wayback • crt.sh • urlscan</div>`;
     list.appendChild(header);
 
+    // RUN ALL (only for MULTI)
+    if(MODE==="MULTI"){
+      const runAll=document.createElement("button");
+      runAll.innerHTML=`🚀 RUN ALL (Open all sources) <span class="tag low">[AUTO]</span>`;
+      runAll.onclick=()=>{
+        data.forEach(item=>{
+          if(item.open) window.open(item.open,"_blank");
+        });
+      };
+      list.appendChild(runAll);
+    }
+
     data.forEach(item=>{
+      if(item.type==="INFO") return;
       const b=document.createElement("button");
       if(item.type==="OPEN"){
         b.innerHTML = `${item.label} <span class="tag low">[OPEN]</span>`;
@@ -609,22 +617,22 @@ function render(){
    ========================= */
 const btnHunt=document.getElementById("btnHunt");
 const btnRecon=document.getElementById("btnRecon");
-const btnLogic=document.getElementById("btnLogic");
 const btnScope=document.getElementById("btnScope");
+const btnMulti=document.getElementById("btnMulti");
 
 function setMode(m){
   MODE=m;
   btnHunt.classList.toggle("active", m==="HUNT");
   btnRecon.classList.toggle("active", m==="RECON");
-  btnLogic.classList.toggle("active", m==="LOGIC");
   btnScope.classList.toggle("active", m==="SCOPE");
+  btnMulti.classList.toggle("active", m==="MULTI");
   render();
 }
 
 btnHunt.addEventListener("click", ()=>setMode("HUNT"));
 btnRecon.addEventListener("click", ()=>setMode("RECON"));
-btnLogic.addEventListener("click", ()=>setMode("LOGIC"));
 btnScope.addEventListener("click", ()=>setMode("SCOPE"));
+btnMulti.addEventListener("click", ()=>setMode("MULTI"));
 
 document.getElementById("target").addEventListener("input", ()=>{
   clearTimeout(window.__rT);
